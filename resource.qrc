@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sha.webp</file>
+        <file>paibei.webp</file>
+        <file>xcm2.jpg</file>
+        <file>tao.jpg</file>
+        <file>shan.webp</file>
+        <file>CardResources.qml</file>
+        <file>meihua.jpg</file>
+        <file>jiu.jpeg</file>
+        <file>hongtao.webp</file>
+        <file>heitao.webp</file>
+        <file>fangkuai.webp</file>
+        <file>zhuangbei/zhugeliannu.JPG</file>
+    </qresource>
+</RCC>
