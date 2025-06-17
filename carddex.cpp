@@ -185,18 +185,10 @@ int Carddex::count() const {
     return m_paidui.size();
 }
 
-void Carddex::xipai()
-{
+
+void Carddex::xipai() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-
-    std::default_random_engine engine(seed);
-
-    for (int i = m_paidui.size() - 1; i > 0; --i) {
-        std::uniform_int_distribution<int> distribution(0, i);
-        int j = distribution(engine);
-
-        std::swap(m_paidui[i], m_paidui[j]);
-    }
+    std::shuffle(m_paidui.begin(), m_paidui.end(), std::default_random_engine(seed));
 }
 QVariant Carddex::drawCard() {
     if (m_paidui.isEmpty()) {
@@ -212,5 +204,20 @@ QVariant Carddex::drawCard() {
     cardData["point"] = drawnCard.getPoint();
     cardData["type"] = drawnCard.getType();
 
+    qDebug() << "抽到的卡牌信息:";
+    qDebug() << "名称:" << cardData["name"].toString();
+    qDebug() << "花色:" << cardData["suit"].toString();
+    qDebug() << "点数:" << cardData["point"].toInt();
+    qDebug() << "类型:" << cardData["type"].toString();
+
+
     return cardData;
+
+}
+
+bool Carddex::playCard(const QVariantMap &cardData) {
+    // 这里实现卡牌效果逻辑
+    QString cardName = cardData["name"].toString();
+    std::cout << "Playing card: " << cardName.toStdString() << std::endl;
+    return true;
 }

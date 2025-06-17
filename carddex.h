@@ -11,9 +11,9 @@ class Carddex : public QObject {
 
 public:
  explicit Carddex(QObject *parent = nullptr);
-    void initcarddex();
-    void add( card cd);
-
+    Q_INVOKABLE  void initcarddex();
+    Q_INVOKABLE  void add( card cd);
+    Q_INVOKABLE bool playCard(const QVariantMap &cardData);
     Q_INVOKABLE void xipai(); // 洗牌方法
     Q_INVOKABLE QVariant drawCard(); // 抽牌方法
     int count() const; // 获取剩余牌数
