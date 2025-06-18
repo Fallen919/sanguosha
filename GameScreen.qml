@@ -185,6 +185,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 Item {
+    property alias handCardsModel: handCardsModel
     id: gameArea
     width: 1280
     height: 720
@@ -193,7 +194,7 @@ Item {
     // 1. 背景
     AnimatedImage {
         anchors.fill: parent
-        source: "/root/Sanguosha/beijing.gif"  // 确保路径正确
+        source: "/root/Sanguosha/beijing.gif"
         playing: true
         fillMode: Image.PreserveAspectCrop
     }
@@ -342,4 +343,7 @@ Item {
             handCardsModel.remove(index);
         }
     }
-}
+
+
+    }
+

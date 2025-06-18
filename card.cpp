@@ -25,20 +25,20 @@ card::CardName card::getName() const
     return m_name;
 }
 
-card::CardSuit card::getSuit() const
-{
-    return m_suit;
-}
+// card::CardSuit card::getSuit() const
+// {
+//     return m_suit;
+// }
 
-card::CardPoint card::getPoint() const
-{
-    return m_point;
-}
+// card::CardPoint card::getPoint() const
+// {
+//     return m_point;
+// }
 
-card::CardType card::getType() const
-{
-    return m_type;
-}
+// card::CardType card::getType() const
+// {
+//     return m_type;
+// }
 
 card::card() {}
 

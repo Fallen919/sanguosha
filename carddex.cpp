@@ -156,7 +156,7 @@ void Carddex::initcarddex()
     add({card::Shan_Dian, card::Jing_Nang, card::Hong_Tao, card::Card_Q});
     add({card::Zhu_Geliannv, card::Zhuang_Bei, card::Mei_Hua, card::Card_A});
     add({card::Zhu_Geliannv, card::Zhuang_Bei, card::Fang_Kuai, card::Card_A});
-    add({card::Chi_Xiongshuanggujian, card::Zhuang_Bei, card::Hei_Tao, card::Card_2});
+    add({card::Ci_Xiongshuanggujian, card::Zhuang_Bei, card::Hei_Tao, card::Card_2});
     add({card::Han_Bingjian, card::Zhuang_Bei, card::Hei_Tao, card::Card_2});
     add({card::Fang_Tianhuaji, card::Zhuang_Bei, card::Fang_Kuai, card::Card_Q});
     add({card::Zhu_Queyushan, card::Zhuang_Bei, card::Fang_Kuai, card::Card_A});
@@ -168,8 +168,8 @@ void Carddex::initcarddex()
     add({card::Qing_Gangjian, card::Zhuang_Bei, card::Hei_Tao, card::Card_6});
     add({card::Ba_Guazhen, card::Zhuang_Bei, card::Hei_Tao, card::Card_2});
     add({card::Ba_Guazhen, card::Zhuang_Bei, card::Mei_Hua, card::Card_2});
-    add({card::Ten_Jia, card::Zhuang_Bei, card::Hei_Tao, card::Card_2});
-    add({card::Ten_Jia, card::Zhuang_Bei, card::Mei_Hua, card::Card_2});
+    add({card::Teng_Jia, card::Zhuang_Bei, card::Hei_Tao, card::Card_2});
+    add({card::Teng_Jia, card::Zhuang_Bei, card::Mei_Hua, card::Card_2});
     add({card::Ren_Wangdun, card::Zhuang_Bei, card::Mei_Hua, card::Card_2});
     add({card::Bai_Yingshizi, card::Zhuang_Bei, card::Mei_Hua, card::Card_A});
     add({card::Fang_Yuma, card::Zhuang_Bei, card::Mei_Hua, card::Card_5});
@@ -199,7 +199,7 @@ QVariant Carddex::drawCard() {
     emit countChanged(count()); // 通知 QML 牌堆数量变化
 
     QVariantMap cardData;
-    cardData["name"] = drawnCard.getName();
+    cardData["name"] = drawnCard.NewGetName();
     cardData["suit"] = drawnCard.getSuit();
     cardData["point"] = drawnCard.getPoint();
     cardData["type"] = drawnCard.getType();

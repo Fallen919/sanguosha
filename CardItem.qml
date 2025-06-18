@@ -30,7 +30,7 @@ Item {
             PropertyChanges { target: root; y: -30 }
         }
     ]
-
+//摸牌动画
     transitions: [
         Transition {
             from: "drawing"; to: "inHand"
@@ -57,6 +57,18 @@ Item {
                source: CardResources.suitColors[cardSuit] || CardResources.suitColors.default
 
 }
+        Rectangle{
+            id:points
+            width: 0;height: 0
+            anchors.top:parent.top
+            anchors.left:parent.left;
+            anchors.margins: 5
+            Text {
+                id: p
+                text: gameArea.handCardsModel.get(index).point
+            }
+        }
+
         // 花色标记
         // Rectangle {
         //     width: 20; height: 20
