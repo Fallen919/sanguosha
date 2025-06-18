@@ -16,9 +16,12 @@ public:
     Q_INVOKABLE bool playCard(const QVariantMap &cardData);
     Q_INVOKABLE void xipai(); // 洗牌方法
     Q_INVOKABLE QVariant drawCard(); // 抽牌方法
-    int count() const; // 获取剩余牌数
+    Q_INVOKABLE int count() const;   // 获取剩余牌数
+    Q_INVOKABLE void jinruqipaidui(card &cd);
+    Q_INVOKABLE card mopai();
 signals:
     void countChanged(int newCount); // 牌数变化信号
 private:
     QList<card> m_paidui;
+    QList<card> m_qipaidui;
 };

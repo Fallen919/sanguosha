@@ -57,15 +57,3 @@ player *cardPanel::getOwner()
 {
     return m_owner;
 }
-
-void cardPanel::paintEvent(QPaintEvent *event)
-{
-    // QPainter p(this);
-    // if (m_isfront) {
-    //     p.drawPixmap(rect(), m_front);
-    // } else {
-    //     p.drawPixmap(rect(), m_back);
-    // }
-}
-
-void cardPanel::mousePressEvent(QMouseEvent *event) {}

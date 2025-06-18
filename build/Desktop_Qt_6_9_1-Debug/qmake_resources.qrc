@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/sha">
-<file alias="main.qml">/root/sanguosha111/sha/main.qml</file>
+<file alias="main.qml">/root/sgs/sanguosha/main.qml</file>
 </qresource>
 </RCC>

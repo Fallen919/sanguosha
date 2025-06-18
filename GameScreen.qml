@@ -193,7 +193,7 @@ Item {
     // 1. 背景
     AnimatedImage {
         anchors.fill: parent
-        source: "/root/Sanguosha/beijing.gif"  // 确保路径正确
+        source: "qrc:/tupian/sgsbeijing.gif"  // 确保路径正确
         playing: true
         fillMode: Image.PreserveAspectCrop
     }
