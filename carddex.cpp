@@ -191,15 +191,16 @@ void Carddex::xipai() {
     std::shuffle(m_paidui.begin(), m_paidui.end(), std::default_random_engine(seed));
 }
 QVariant Carddex::drawCard() {
-    if (m_paidui.isEmpty()) {
-        return QVariant();
-    }
-
-    card drawnCard = m_paidui.takeFirst();
     emit countChanged(count()); // 通知 QML 牌堆数量变化
 
     QVariantMap cardData;
+
+
+
+    card drawnCard = *(m_paidui.begin());
     cardData["name"] = drawnCard.NewGetName();
+    cardData["name"] = drawnCard.getName();
+
     cardData["suit"] = drawnCard.getSuit();
     cardData["point"] = drawnCard.getPoint();
     cardData["type"] = drawnCard.getType();
@@ -213,6 +214,23 @@ QVariant Carddex::drawCard() {
 
     return cardData;
 
+}
+
+card Carddex::mopai()
+{
+    if (m_paidui.size() == 0) {
+        m_paidui = m_qipaidui;
+    }
+    Carddex::drawCard();
+    card cd = *(m_paidui.begin());
+    m_paidui.removeFirst();
+    return cd;
+}
+
+void Carddex::jinruqipaidui(
+    card &cd)
+{
+    m_qipaidui.append(cd);
 }
 
 bool Carddex::playCard(const QVariantMap &cardData) {

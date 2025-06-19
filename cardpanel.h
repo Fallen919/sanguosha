@@ -4,7 +4,6 @@
 #include <QObject>
 #include "card.h"
 #include "player.h"
-#include <QMouseEvent>
 
 class cardPanel : public QObject
 {
@@ -33,9 +32,6 @@ public:
     player *getOwner();
 
 protected:
-    void paintEvent(QPaintEvent *event);
-    //鼠标点击处理
-    void mousePressEvent(QMouseEvent *event);
 
 signals:
 

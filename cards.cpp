@@ -13,20 +13,10 @@ void cards::add(cards &cds)
     m_cards.unite(cds.m_cards);
 }
 
-cards &cards::operator<<(card &cd)
+void cards::remove(
+    card &cd, Carddex p)
 {
-    add(cd);
-    return *this;
-}
-
-cards &cards::operator<<(cards &cds)
-{
-    add(cds);
-    return *this;
-}
-
-void cards::remove(card &cd)
-{
+    p.jinruqipaidui(cd);
     m_cards.remove(cd);
 }
 

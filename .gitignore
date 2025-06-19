@@ -73,3 +73,19 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+build/
+
+# Qt build files
+build/
+*.autosave
+
+# Qt Creator
+*.user
+*.user.*
+
+# Clangd
+.qtc_clangd/
+
+# QMake generated files
+qmake_resources.qrc
+

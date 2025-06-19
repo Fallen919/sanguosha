@@ -194,7 +194,10 @@ Item {
     // 1. 背景
     AnimatedImage {
         anchors.fill: parent
+
         source: "/root/Sanguosha/beijing.gif"
+
+
         playing: true
         fillMode: Image.PreserveAspectCrop
     }

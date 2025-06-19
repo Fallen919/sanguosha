@@ -5,8 +5,13 @@ SOURCES += \
         carddex.cpp \
         cardpanel.cpp \
         cards.cpp \
+        daweiwuwang.cpp \
+        gamejieduan.cpp \
+        judgearea.cpp \
         main.cpp \
-        player.cpp
+        player.cpp \
+        wujiang.cpp \
+        zhuangbeiqu.cpp
 
 resources.files = main.qml 
 resources.prefix = /$${TARGET}
@@ -29,7 +34,12 @@ HEADERS += \
     carddex.h \
     cardpanel.h \
     cards.h \
-    player.h
+    daweiwuwang.h \
+    gamejieduan.h \
+    judgearea.h \
+    player.h \
+    wujiang.h \
+    zhuangbeiqu.h
 
 DISTFILES += \
     CardItem.qml \

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     Carddex cardDex;
     engine.rootContext()->setContextProperty("cardDex", &cardDex);
-   const QUrl url(QUrl::fromLocalFile("/root/sanguosha111/sha/main.qml"));
+    const QUrl url(QUrl::fromLocalFile("/root/sgs/sanguosha/main.qml"));
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreated,
