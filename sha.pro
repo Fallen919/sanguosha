@@ -7,6 +7,7 @@ SOURCES += \
         cards.cpp \
         daweiwuwang.cpp \
         gamejieduan.cpp \
+        gamemanager.cpp \
         judgearea.cpp \
         main.cpp \
         player.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     cards.h \
     daweiwuwang.h \
     gamejieduan.h \
+    gamemanager.h \
     judgearea.h \
     player.h \
     wujiang.h \
@@ -47,4 +49,5 @@ DISTFILES += \
     GameScreen.qml \
     MainMenu.qml \
     PlayerArea.qml \
-    SettingsScreen.qml
+    SettingsScreen.qml \
+    huosha.PNG

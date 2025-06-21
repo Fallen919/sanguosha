@@ -6,6 +6,7 @@ Item {
     id: playerArea
     property string playerName
     property int health
+    property int playerIndex  // 添加这个属性
 
     Column {
         anchors.centerIn: parent

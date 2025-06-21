@@ -86,7 +86,7 @@ public:
         Type_End,
     };
 
-    //设置属性
+    //设置属性  枚举版本的 setter
     void setPoint(CardPoint pt);
     void setSuit(CardSuit suit);
     void setName(CardName name);
@@ -160,14 +160,25 @@ public:
     CardName getName()const;
     QString NewGetName() const { return NewGetNameString(); }
     QString getSuit() const { return getSuitString(); }
-    int getPoint() const { return static_cast<int>(m_point); }
     QString getType() const { return getTypeString(); }
+    int getPoint() const { return static_cast<int>(m_point); }
 
     bool operator==(const card &other) const
     {
         return (m_suit == other.m_suit) && (m_point == other.m_point) && (m_name == other.m_name)
                && (m_type == other.m_type);
     }
+    // 反向映射
+    static CardName nameFromString(const QString& name);
+    // 修改设置方法以接受字符串
+
+    static CardSuit suitFromString(const QString& suit);
+    static CardType typeFromString(const QString& type);
+    // 字符串版本的 setter
+    void setName(const QString& name);
+    void setSuit(const QString& suit);
+    void setType(const QString& type);
+    void setPoint(int point);
 
     card();
     card(CardName name, CardType type, CardSuit suit, CardPoint point);
@@ -183,3 +194,4 @@ inline size_t qHash(const card &c, size_t seed = 0)
 {
     return qHashMulti(seed, c.getSuit(), c.getPoint(), c.getName(), c.getType());
 }
+//

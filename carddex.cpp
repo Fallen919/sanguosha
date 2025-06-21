@@ -197,10 +197,8 @@ QVariant Carddex::drawCard() {
 
 
 
-    card drawnCard = *(m_paidui.begin());
+    card drawnCard = m_paidui.first();
     cardData["name"] = drawnCard.NewGetName();
-    cardData["name"] = drawnCard.getName();
-
     cardData["suit"] = drawnCard.getSuit();
     cardData["point"] = drawnCard.getPoint();
     cardData["type"] = drawnCard.getType();
@@ -226,16 +224,50 @@ card Carddex::mopai()
     m_paidui.removeFirst();
     return cd;
 }
-
+int Carddex::discardCount() const {
+    return m_qipaidui.size();
+}
 void Carddex::jinruqipaidui(
     card &cd)
 {
     m_qipaidui.append(cd);
+    emit discardCountChanged(discardCount());
+}
+void Carddex::addToDiscardPile(const card &cd) {
+    m_qipaidui.append(cd);
+    emit discardCountChanged(discardCount());
 }
 
+card Carddex::removeFromDiscardPile(int index) {
+    if (index < 0 || index >= m_qipaidui.size()) {
+        return card(); // 返回无效卡牌
+    }
+    card c = m_qipaidui.takeAt(index);
+    emit discardCountChanged(discardCount());
+    return c;
+}
+
+QList<card> Carddex::getDiscardPile() const {
+    return m_qipaidui;
+}
+QVariantMap Carddex::getTopDiscardCard() {
+    QVariantMap cardData;
+
+    if (m_qipaidui.isEmpty()) {
+        return cardData;
+    }
+
+    card topCard = m_qipaidui.last();
+    cardData["name"] = topCard.NewGetName();
+    cardData["suit"] = topCard.getSuit();
+    cardData["point"] = topCard.getPoint();
+    cardData["type"] = topCard.getType();
+
+    return cardData;
+}
 bool Carddex::playCard(const QVariantMap &cardData) {
     // 这里实现卡牌效果逻辑
     QString cardName = cardData["name"].toString();
-    std::cout << "Playing card: " << cardName.toStdString() << std::endl;
+    qDebug() << "Playing card:" << cardName;
     return true;
 }
