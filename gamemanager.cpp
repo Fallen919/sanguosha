@@ -1,21 +1,29 @@
 #include "gamemanager.h"
 #include <QDebug>
-
-GameManager::GameManager(QObject *parent) : QObject(parent)
+#include "player.h"
+GameManager::GameManager(
+    QObject *parent)
+    : QObject(parent)
 {
+    m_carddex.xipai();
+    player *p = new player(this);
+    GameManager::setplayers(p);
+    p->setmynum(1);
+    m_dangqianplayer = p;
+    std::list<player *>::iterator it = m_player.begin();
     // 初始化玩家手牌
-    for (int i = 0; i < 4; i++) {
-        card drawnCard = m_carddex.mopai();
-        m_playerHand.append(drawnCard);
-    }
-    m_prevHand = m_playerHand; // 保存初始状态
+    // for (int i = 0; i < 4; i++) {
+    //card drawnCard = m_carddex.mopai();
+    //m_playerHand.append(drawnCard);
+    (*it)->mopai(4, this);
+    m_playerHand.append((*it)->getcards());
+    //}
+    //m_prevHand = m_playerHand; // 保存初始状态
 }
 
-void GameManager::drawCard()
+card GameManager::drawCard()
 {
     card drawnCard = m_carddex.mopai();
-    m_playerHand.append(drawnCard);
-
     QVariantMap cardData;
     cardData["name"] = drawnCard.NewGetName();
     cardData["suit"] = drawnCard.getSuit();
@@ -25,17 +33,21 @@ void GameManager::drawCard()
     emit cardAdded(cardData);
     emit deckCountChanged(deckCount());
 
-    m_prevHand = m_playerHand; // 更新状态
+    //m_prevHand = m_playerHand; // 更新状态
+    return drawnCard;
 }
 
-void GameManager::playCard(int handIndex) {
+void GameManager::playCard(
+    int handIndex)
+{
     if (handIndex < 0 || handIndex >= m_playerHand.size()) {
         qWarning() << "Invalid hand index:" << handIndex;
         return;
     }
-
     card playedCard = m_playerHand.at(handIndex);
-    m_playerHand.removeAt(handIndex);
+    if (m_dangqianplayer->getmynum() == 1)
+        m_playerHand.removeAt(handIndex);
+    m_dangqianplayer->getcards().removeAt(handIndex);
 
     QVariantMap cardData;
     cardData["name"] = playedCard.NewGetName();
@@ -87,6 +99,7 @@ void GameManager::shuffleDeck()
     m_carddex.xipai();
     emit deckCountChanged(deckCount());
 }
+
 //牌堆数量
 int GameManager::deckCount() const
 {
@@ -99,6 +112,38 @@ int GameManager::discardPileCount() const {
 //弃牌堆顶
 QVariantMap GameManager::getTopDiscardCard() {
     return m_carddex.getTopDiscardCard();
+}
+
+void GameManager::setplayers(
+    player *p)
+{
+    m_player.push_back(p);
+}
+
+std::list<player *> GameManager::getplayers()
+{
+    return m_player;
+}
+
+void GameManager::setdangqianplayer(
+    player *p)
+{
+    m_dangqianplayer = p;
+}
+
+player *GameManager::getdangqianplayer()
+{
+    return m_dangqianplayer;
+}
+
+Carddex *GameManager::getcarddex()
+{
+    return &m_carddex;
+}
+
+QList<card> GameManager::gethandcards()
+{
+    return m_playerHand;
 }
 
 QVariantList GameManager::getHandCards() const

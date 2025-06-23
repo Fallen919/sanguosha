@@ -5,12 +5,9 @@
 Carddex::Carddex (QObject *parent) : QObject{parent}{
     initcarddex();
     xipai();
-    std::cout << m_paidui.size() << std ::endl;
-    QList<card>::const_iterator it;
-
-    for (it = m_paidui.constBegin(); it != m_paidui.constEnd(); ++it) {
-        std::cout << it->getName() << std::endl;
-    }}
+    std::cout << "sb" << std::endl;
+    //std::cout << m_paidui.size() << std ::endl;
+}
 
 void Carddex::add(card cd)
 {
@@ -187,6 +184,14 @@ int Carddex::count() const {
 
 
 void Carddex::xipai() {
+    std::cout << "洗牌前 - m_paidui大小: " << m_paidui.size()
+              << ", m_qipaidui大小: " << m_qipaidui.size() << std::endl;
+
+    m_paidui.append(m_qipaidui);
+    m_qipaidui.clear();
+
+    std::cout << "洗牌后 - m_paidui大小: " << m_paidui.size()
+              << "m_qipaidui大小:" << m_qipaidui.size() << std::endl;
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(m_paidui.begin(), m_paidui.end(), std::default_random_engine(seed));
 }
@@ -216,12 +221,12 @@ QVariant Carddex::drawCard() {
 
 card Carddex::mopai()
 {
-    if (m_paidui.size() == 0) {
-        m_paidui = m_qipaidui;
+    if (m_paidui.isEmpty()) {
+        if (!m_qipaidui.isEmpty())
+            Carddex::xipai();
     }
     Carddex::drawCard();
-    card cd = *(m_paidui.begin());
-    m_paidui.removeFirst();
+    card cd = m_paidui.takeFirst();
     return cd;
 }
 int Carddex::discardCount() const {
@@ -250,6 +255,17 @@ card Carddex::removeFromDiscardPile(int index) {
 QList<card> Carddex::getDiscardPile() const {
     return m_qipaidui;
 }
+
+QList<card> Carddex::getpaidui()
+{
+    return m_paidui;
+}
+
+QList<card> Carddex::getqipaidui()
+{
+    return m_qipaidui;
+}
+
 QVariantMap Carddex::getTopDiscardCard() {
     QVariantMap cardData;
 

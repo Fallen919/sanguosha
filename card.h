@@ -1,6 +1,9 @@
 #pragma once
 #include <QHashFunctions>
 #include <iostream>
+class player;
+class gamemanager;
+
 class card
 {
 public:
@@ -179,6 +182,8 @@ public:
     void setSuit(const QString& suit);
     void setType(const QString& type);
     void setPoint(int point);
+
+    Q_INVOKABLE void xiaoguo(card c);
 
     card();
     card(CardName name, CardType type, CardSuit suit, CardPoint point);

@@ -5,6 +5,7 @@
 #include <QVariant>
 #include "card.h"
 #include "carddex.h"
+#include <list>
 
 class GameManager : public QObject {
     Q_OBJECT
@@ -13,9 +14,10 @@ class GameManager : public QObject {
 
 public:
     explicit GameManager(QObject *parent = nullptr);
+    static GameManager *pt();
 
     // 玩家操作
-    Q_INVOKABLE void drawCard();
+    Q_INVOKABLE card drawCard();
     Q_INVOKABLE void playCard(int handIndex);
     Q_INVOKABLE void discardCard(int handIndex);
     Q_INVOKABLE void shuffleDeck(); // 洗牌
@@ -30,6 +32,15 @@ public:
     Q_INVOKABLE void initHandCards();
     Q_INVOKABLE QVariantMap getTopDiscardCard();
 
+    Q_INVOKABLE void setplayers(player *p);
+    Q_INVOKABLE std::list<player *> getplayers();
+
+    Q_INVOKABLE void setdangqianplayer(player *p);
+    Q_INVOKABLE player *getdangqianplayer();
+
+    Carddex *getcarddex();
+    QList<card> gethandcards();
+
 signals:
     // 游戏状态
     void deckCountChanged(int count); // 牌堆数量变化
@@ -43,5 +54,8 @@ signals:
 private:
     Carddex m_carddex;
     QList<card> m_playerHand;
-    QList<card> m_prevHand;
+    // QList<card> m_prevHand;
+    std::list<player *> m_player;
+    player *m_dangqianplayer;
+    static GameManager *m_pt;
 };

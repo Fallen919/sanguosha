@@ -1,5 +1,5 @@
 #include "gamejieduan.h"
-
+#include "gamemanager.h"
 void gamejieduan::setjieduan(
     Jieduan j)
 {
@@ -21,12 +21,9 @@ void gamejieduan::pandingjieduan(
 }
 
 void gamejieduan::mopaijieduan(
-    player *p, Carddex *paidui)
+    player *p, GameManager *g)
 {
-    for (int i = 0; i < 2; i++) {
-        card cd = paidui->mopai();
-        p->getcards()->add(cd);
-    }
+    p->mopai(2, g);
 }
 
 void gamejieduan::chupaijieduan(
@@ -42,21 +39,21 @@ void gamejieduan::jieshujieduan(
 {}
 
 void gamejieduan::yihuihe(
-    player *p, Carddex *paidui)
+    player *p, GameManager *g)
 {
     zhunbeijieduan(p);
     pandingjieduan(p);
-    mopaijieduan(p, paidui);
+    mopaijieduan(p, g);
     chupaijieduan(p);
     qipaijieduan(p);
     jieshujieduan(p);
 }
 
 void gamejieduan::yilun(
-    player *p, Carddex *paidui)
+    player *p, GameManager *g)
 {
     for (int i = 0; i < p->getwanjiashu(); ++i) {
-        yihuihe(p, paidui);
+        yihuihe(p, g);
     }
 }
 
@@ -70,14 +67,14 @@ gamejieduan::gamejieduan(
     : QObject{parent}
 {}
 
-void gamejieduan::gamestart(
-    player *p, Carddex *paidui)
-{
-    std::list<player *>::iterator it = p->getwanjia().begin();
-    for (int i = 0; i < p->getwanjia().size(); ++i, ++it) {
-        for (int m = 0; m < 4; ++m) {
-            card cd = paidui->mopai();
-            (*it)->getcards()->add(cd);
-        }
-    }
-}
+// void gamejieduan::gamestart(
+//     player *p, Carddex *paidui)
+// {
+//     std::list<player *>::iterator it = p->().begin();
+//     for (int i = 0; i < p->getwanjia().size(); ++i, ++it) {
+//         for (int m = 0; m < 4; ++m) {
+//             card cd = paidui->mopai();
+//             (*it)->getcards()->add(cd);
+//         }
+//     }
+// }

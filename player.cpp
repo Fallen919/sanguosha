@@ -1,4 +1,5 @@
 #include "player.h"
+#include "gamemanager.h"
 
 player::player(QObject *parent) : QObject{parent} {}
 
@@ -24,18 +25,13 @@ int player::getmynum()
     return m_mynum;
 }
 
-void player::setplayer(
-    player *p)
-{
-    wanjia.push_back(p);
-}
-
-void player::setjuli()
+void player::setjuli(
+    GameManager *g)
 {
     int num = m_mynum;
     for (int i = 0; i < m_wanjiashu; ++i) {
-        std::list<player *>::iterator it = wanjia.begin();
-        std::list<player *>::iterator t = wanjia.end();
+        std::list<player *>::iterator it = g->getplayers().begin();
+        std::list<player *>::iterator t = g->getplayers().end();
         int jl = 0;
         for (int m = 0; m <= i; ++m) {
             ++it;
@@ -87,24 +83,71 @@ zhuangbeiqu *player::getzhuangbei()
     return &m_zhuangbei;
 }
 
-void player::setwanjia(
-    player *p)
+QList<card> player::getcards()
 {
-    wanjia.push_back(p);
+    return m_cards;
 }
 
-std::list<player *> player::getwanjia()
+void player::setwujiang(
+    wujiang *w)
 {
-    return wanjia;
+    m_wujiang.settili(w->gettili());
+    m_wujiang.settilishangxian(w->gettilishangxian());
+    m_wujiang.setshoupaishu(w->getshoupaishu());
+    m_wujiang.setshoupaishangxian(w->getshoupaishangxian());
+    m_wujiang.setwujiangming(w->getwujiangming());
+    m_wujiang.setwujiangshili(w->getwujiangshili());
+    m_wujiang.setxingbie(w->getxingbie());
 }
 
-void player::setcards(
-    cards *c)
+wujiang *player::getwujiang()
 {
-    m_cards = *c;
+    return &m_wujiang;
 }
 
-cards *player::getcards()
+void player::mopai(
+    int num, GameManager *g)
 {
-    return &m_cards;
+    //if (m_mynum == g->getdangqianplayer()->getmynum())
+    for (int i = 0; i < num; ++i) {
+        m_cards.append(g->drawCard());
+        if (m_mynum == 1) {
+            g->gethandcards().clear();
+            g->gethandcards().append(m_cards);
+        }
+    }
+}
+
+void player::setgongjijuli()
+{
+    m_gongjijuli = 0;
+    if (m_zhuangbei.getwuqi().getName() == card::Ci_Xiongshuanggujian
+        || m_zhuangbei.getwuqi().getName() == card::Han_Bingjian
+        || m_zhuangbei.getwuqi().getName() == card::Gu_Dingdao
+        || m_zhuangbei.getwuqi().getName() == card::Qing_Gangjian) {
+        m_gongjijuli += 2;
+    }
+    if (m_zhuangbei.getwuqi().getName() == card::Guan_Shifu
+        || m_zhuangbei.getwuqi().getName() == card::Qing_Longyanyuedao
+        || m_zhuangbei.getwuqi().getName() == card::Zhang_Bashemao) {
+        m_gongjijuli += 3;
+    }
+    if (m_zhuangbei.getwuqi().getName() == card::Zhu_Queyushan
+        || m_zhuangbei.getwuqi().getName() == card::Fang_Tianhuaji) {
+        m_gongjijuli += 4;
+    }
+    if (m_zhuangbei.getwuqi().getName() == card::Qi_Linggong) {
+        m_gongjijuli += 5;
+    }
+}
+
+int player::getgongjijuli()
+{
+    return m_gongjijuli;
+}
+
+void player::playcard(
+    int handIndex, GameManager *g)
+{
+    g->playCard(handIndex);
 }

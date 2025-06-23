@@ -13,11 +13,10 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    Carddex cardDex;
     GameManager gameManager;
     engine.rootContext()->setContextProperty("gameManager", &gameManager);
-    engine.rootContext()->setContextProperty("cardDex", &cardDex);
-    const QUrl url(QUrl::fromLocalFile("/root/sanguosha111/sha/main.qml"));
+    engine.rootContext()->setContextProperty("cardDex", &(*gameManager.getcarddex()));
+    const QUrl url(QUrl::fromLocalFile("/root/qt/sha/main.qml"));
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreated,

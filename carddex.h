@@ -26,8 +26,11 @@ public:
     card removeFromDiscardPile(int index); //  从弃牌堆移除卡牌
     QList<card> getDiscardPile() const;
 
+    QList<card> getpaidui();
+    QList<card> getqipaidui();
+
 signals:
-    void countChanged(int newCount); // 牌数变化信号
+    void countChanged(int newCount);        // 牌数变化信号
     void discardCountChanged(int newCount); // 弃牌堆变化信号
 
 private:
