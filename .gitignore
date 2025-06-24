@@ -89,3 +89,8 @@ build/
 # QMake generated files
 qmake_resources.qrc
 
+# 忽略 build 文件夹及其所有内容
+build/
+
+# 忽略 resource.qrc 文件
+resource.qrc
