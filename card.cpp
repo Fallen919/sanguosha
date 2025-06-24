@@ -1,0 +1,304 @@
+#include "card.h"
+#include "player.h"
+card::card(
+    QObject* parent)
+    : QObject{parent}
+{}
+
+card::CardName card::nameFromString(
+    const QString& name)
+{
+    card temp;
+    for (int i = CardName::Name_Begin + 1; i < CardName::Name_End; i++) {
+        temp.setName(static_cast<CardName>(i)); // 使用公共 setter 方法
+        if (temp.NewGetNameString().trimmed() == name.trimmed()) {
+            return static_cast<CardName>(i);
+        }
+    }
+    return Name_Begin;
+}
+
+card::CardSuit card::suitFromString(
+    const QString& suit)
+{
+    card temp;
+    for (int i = CardSuit::Suit_Begin + 1; i < CardSuit::Suit_End; i++) {
+        temp.setSuit(static_cast<CardSuit>(i)); // 使用公共 setter 方法
+        if (temp.getSuitString().trimmed() == suit.trimmed()) {
+            return static_cast<CardSuit>(i);
+        }
+    }
+    return Suit_Begin;
+}
+
+card::CardType card::typeFromString(
+    const QString& type)
+{
+    card temp;
+    for (int i = CardType::Type_Begin + 1; i < CardType::Type_End; i++) {
+        temp.setType(static_cast<CardType>(i)); // 使用公共 setter 方法
+        if (temp.getTypeString().trimmed() == type.trimmed()) {
+            return static_cast<CardType>(i);
+        }
+    }
+    return Type_Begin;
+}
+
+void card::setPoint(
+    int point)
+{
+    // 将整数转换为 CardPoint 枚举值
+    m_point = static_cast<CardPoint>(point);
+}
+
+bool card::xiaoguo(
+    player* laiyuan, player* mubiao)
+{
+    switch (m_name) {
+    case Sha:
+        if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
+            && this->getSuit() == "Mei_Hua")
+            return false;
+        if (mubiao->isbaohan("Teng_Jia"))
+            return false;
+        emit xuyaoxiangyingshan();
+        if (laiyuan->isbaohan("Jiu"))
+            return mubiao->shoudaoshanghai(2, "Pu_Tong");
+        else
+            return mubiao->shoudaoshanghai(1, "Pu_Tong");
+        break;
+
+    case Shan:
+        return false;
+        break;
+
+    case Tao:
+        return mubiao->huixue(1);
+        break;
+
+    case Jiu:
+        if (mubiao->isbaohan("Jiu"))
+            return false;
+        else
+            mubiao->addzhuangtai("Jiu", 1);
+        return true;
+        break;
+
+    case Lei_Sha:
+        if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
+            && this->getSuit() == "Mei_Hua")
+            return false;
+        emit xuyaoxiangyingshan();
+        if (laiyuan->isbaohan("Jiu"))
+            return mubiao->shoudaoshanghai(2, "Lei");
+        else
+            return mubiao->shoudaoshanghai(1, "Lei");
+        break;
+
+    case Huo_Sha:
+        if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
+            && this->getSuit() == "Mei_Hua")
+            return false;
+        emit xuyaoxiangyingshan();
+        if (laiyuan->isbaohan("Jiu"))
+            return mubiao->shoudaoshanghai(2, "Fire");
+        else
+            return mubiao->shoudaoshanghai(1, "Fire");
+
+        break;
+
+    case Wu_Zhongshengyou:
+
+        break;
+
+    case Wu_Gufengdeng:
+
+        break;
+
+    case Tao_yuanjieyi:
+
+        break;
+
+    case Wan_jianqifa:
+
+        break;
+
+    case Huo_Gong:
+
+        break;
+
+    case Nan_Manruqin:
+
+        break;
+
+    case Jie_Daosharen:
+
+        break;
+
+    case Bing_Niangchunduan:
+
+        break;
+
+    case Le_Busishu:
+
+        break;
+
+    case Jue_Dou:
+
+        break;
+
+    case Wu_Xiekeji:
+
+        break;
+
+    case Guo_Hechaiqiao:
+
+        break;
+
+    case Shun_Shouqianyang:
+
+        break;
+
+    case Tie_Suolianhuan:
+
+        break;
+
+    case Shan_Dian:
+
+        break;
+
+    case Zhu_Geliannv:
+
+        break;
+
+    case Ci_Xiongshuanggujian:
+
+        break;
+
+    case Han_Bingjian:
+
+        break;
+
+    case Fang_Tianhuaji:
+
+        break;
+
+    case Zhu_Queyushan:
+
+        break;
+
+    case Zhang_Bashemao:
+
+        break;
+
+    case Gu_Dingdao:
+
+        break;
+
+    case Guan_Shifu:
+
+        break;
+
+    case Qi_Linggong:
+
+        break;
+
+    case Qing_Longyanyuedao:
+
+        break;
+
+    case Qing_Gangjian:
+
+        break;
+
+    case Ba_Guazhen:
+
+        break;
+
+    case Teng_Jia:
+
+        break;
+
+    case Ren_Wangdun:
+
+        break;
+
+    case Bai_Yingshizi:
+
+        break;
+
+    case Fang_Yuma:
+
+        break;
+
+    case Jing_Gongma:
+
+        break;
+
+    default:
+        break;
+    }
+}
+void card::setSuit(
+    CardSuit suit)
+{
+    m_suit = suit;
+}
+
+void card::setName(
+    CardName name)
+{
+    m_name = name;
+}
+
+void card::setType(
+    CardType type)
+{
+    m_type = type;
+}
+
+void card::setName(
+    const QString& name)
+{
+    m_name = nameFromString(name);
+}
+
+void card::setSuit(
+    const QString& suit)
+{
+    m_suit = suitFromString(suit);
+}
+
+void card::setType(
+    const QString& type)
+{
+    m_type = typeFromString(type);
+}
+
+card::CardName card::getName() const
+{
+    return m_name;
+}
+
+// card::CardSuit card::getSuit() const
+// {
+//     return m_suit;
+// }
+
+// card::CardPoint card::getPoint() const
+// {
+//     return m_point;
+// }
+
+// card::CardType card::getType() const
+// {
+//     return m_type;
+// }
+card::card(
+    CardName name, CardType type, CardSuit suit, CardPoint point)
+{
+    m_suit = suit;
+    m_point = point;
+    m_name = name;
+    m_type = type;
+}

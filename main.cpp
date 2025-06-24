@@ -1,0 +1,32 @@
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include "card.h"
+#include "cards.h"
+#include "carddex.h"
+#include"gamemanager.h"
+int main(int argc, char *argv[])
+{
+    qmlRegisterType<card>("Sanguosha.Core", 1, 0, "Card");
+
+      qmlRegisterSingletonType(QUrl("qrc:/CardResources.qml"), "Sanguosha.Resources", 1, 0, "CardResources");
+    QGuiApplication app(argc, argv);
+
+    QQmlApplicationEngine engine;
+    GameManager gameManager;
+    engine.rootContext()->setContextProperty("gameManager", &gameManager);
+    engine.rootContext()->setContextProperty("cardDex", &(*gameManager.getcarddex()));
+    const QUrl url(QUrl::fromLocalFile("/root/qt/sha/main.qml"));
+    QObject::connect(
+        &engine,
+        &QQmlApplicationEngine::objectCreated,
+        &app,
+        [url](QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        },
+        Qt::QueuedConnection);
+    engine.load(url);
+
+    return app.exec();
+}
