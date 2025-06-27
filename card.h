@@ -3,7 +3,7 @@
 #include <iostream>
 class player;
 #include <QObject>
-
+class GameManager;
 class card : public QObject
 {
     Q_OBJECT
@@ -251,4 +251,5 @@ private:
 
 signals:
     void xuyaoxiangyingshan(); //需要响应闪
+    void xunwenxiangyingwuxiekeji(); //询问是否响应无懈可击
 };

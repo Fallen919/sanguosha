@@ -5,58 +5,46 @@ zhuangbeiqu::zhuangbeiqu(
     : QObject{parent}
 {}
 
-void zhuangbeiqu::setwuqi(
+void zhuangbeiqu::addwuqi(
     card *wq)
 {
-    m_wuqi->setName(wq->getName());
-    m_wuqi->setSuit(wq->getSuit());
-    m_wuqi->setPoint(wq->getPoint());
-    m_wuqi->setType(wq->getType());
+    m_wuqi.append(wq);
 }
 
-card *zhuangbeiqu::getwuqi()
+QList<card *> zhuangbeiqu::getwuqi()
 {
     return m_wuqi;
 }
 
-void zhuangbeiqu::setfangju(
+void zhuangbeiqu::addfangju(
     card *fj)
 {
-    m_fangju->setName(fj->getName());
-    m_fangju->setSuit(fj->getSuit());
-    m_fangju->setPoint(fj->getPoint());
-    m_fangju->setType(fj->getType());
+    m_fangju.append(fj);
 }
 
-card *zhuangbeiqu::getfangju()
+QList<card *> zhuangbeiqu::getfangju()
 {
     return m_fangju;
 }
 
-void zhuangbeiqu::setjinggongma(
+void zhuangbeiqu::addjinggongma(
     card *jgm)
 {
-    m_jingongma->setName(jgm->getName());
-    m_jingongma->setSuit(jgm->getSuit());
-    m_jingongma->setPoint(jgm->getPoint());
-    m_jingongma->setType(jgm->getType());
+    m_jinggongma.append(jgm);
 }
 
-card *zhuangbeiqu::getjinggongma()
+QList<card *> zhuangbeiqu::getjinggongma()
 {
-    return m_jingongma;
+    return m_jinggongma;
 }
 
-void zhuangbeiqu::setfangyuma(
+void zhuangbeiqu::addfangyuma(
     card *fym)
 {
-    m_fangyuma->setName(fym->getName());
-    m_fangyuma->setSuit(fym->getSuit());
-    m_fangyuma->setPoint(fym->getPoint());
-    m_fangyuma->setType(fym->getType());
+    m_fangyuma.append(fym);
 }
 
-card *zhuangbeiqu::getfangyuma()
+QList<card *> zhuangbeiqu::getfangyuma()
 {
     return m_fangyuma;
 }

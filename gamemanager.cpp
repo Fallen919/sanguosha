@@ -17,11 +17,10 @@ GameManager::GameManager(
 card *GameManager::drawCard()
 {
     card *drawnCard = m_carddex.mopai();
-    m_playerHand.append(drawnCard);
     if (m_dangqianplayer->getmynum() == 1) {
-        m_dangqianplayer->getcards().clear();
+        m_playerHand.append(drawnCard);
+        m_dangqianplayer->fuzhicards(m_playerHand);
     }
-        m_dangqianplayer->getcards().append(drawnCard);
     qWarning() << "当前玩家号" << m_dangqianplayer->getmynum();
     qWarning() << "摸排后我手牌数:" << m_playerHand.size();
     qWarning() << "摸排后当前手牌数:" << m_dangqianplayer->getcards().size();
@@ -47,23 +46,25 @@ void GameManager::playCard(
         return;
     }
     card *playedCard = m_playerHand.at(handIndex);
+    m_dangqianplayer->playcard(handIndex, this);
     if (m_dangqianplayer->getmynum() == 1) {
+        m_playerHand.removeAt(handIndex);
         qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
         qWarning() << "我的手牌数:" << m_playerHand.size();
-        m_dangqianplayer->getcards().clear();
-        m_dangqianplayer->getcards().append(m_playerHand);
+        m_dangqianplayer->fuzhicards(m_playerHand);
         qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
     }
-
     QVariantMap cardData;
     cardData["name"] = playedCard->NewGetName();
     cardData["suit"] = playedCard->getSuit();
     cardData["point"] = playedCard->getPoint();
     cardData["type"] = playedCard->getType();
 
+    moveCardToDiscard(playedCard);
     emit cardRemoved(handIndex);
     emit cardPlayed(cardData); // 发出卡牌使用信号，但卡牌尚未进入弃牌堆
 
+    emit cardDiscarded(cardData);
     // 注意：这里不再立即将卡牌加入弃牌堆
     // 卡牌的具体处理（是否进入弃牌堆）由后续逻辑决定
 }
@@ -74,8 +75,9 @@ void GameManager::discardCard(int handIndex) {
         return;
     }
 
-    card *discardedCard = m_playerHand.at(handIndex);
-    m_playerHand.removeAt(handIndex);
+    card *discardedCard = m_dangqianplayer->getcards().at(handIndex);
+    //card *discardedCard = m_playerHand.at(handIndex);
+    //m_playerHand.removeAt(handIndex);
 
     QVariantMap cardData;
     cardData["name"] = discardedCard->NewGetName();
@@ -87,15 +89,22 @@ void GameManager::discardCard(int handIndex) {
     emit cardDiscarded(cardData);
 
     // 直接弃置的牌立即进入弃牌堆
-    moveCardToDiscard(cardData);  // 确保只有一次加入弃牌堆的操作
+    //moveCardToDiscard(cardData);  // 确保只有一次加入弃牌堆的操作
 }
-void GameManager::moveCardToDiscard(const QVariantMap &cardData) {
-    card *c = new card(this);
-    c->setName(cardData["name"].toString());
-    c->setSuit(cardData["suit"].toString());
-    c->setPoint(cardData["point"].toInt());
-    c->setType(cardData["type"].toString());
+void GameManager::moveCardToDiscard(
+    card *c)
+{
+    // card *c = new card(this);
+    // c->setName(cardData["name"].toString());
+    // c->setSuit(cardData["suit"].toString());
+    // c->setPoint(cardData["point"].toInt());
+    // c->setType(cardData["type"].toString());
 
+    QVariantMap cardData;
+    cardData["name"] = c->NewGetName();
+    cardData["suit"] = c->getSuit();
+    cardData["point"] = c->getPoint();
+    cardData["type"] = c->getType();
     m_carddex.addToDiscardPile(c);
     emit cardMovedToDiscard(cardData);
     emit discardPileChanged(discardPileCount());
@@ -104,6 +113,12 @@ void GameManager::shuffleDeck()
 {
     m_carddex.xipai();
     emit deckCountChanged(deckCount());
+}
+
+card *GameManager::panding()
+{
+    card *pandingpai = m_carddex.mopai();
+    return pandingpai;
 }
 
 //牌堆数量

@@ -1,6 +1,5 @@
 #include "player.h"
 #include "gamemanager.h"
-
 player::player(QObject *parent) : QObject{parent} {}
 
 void player::setwanjiashu(
@@ -42,26 +41,25 @@ void player::setjuli(
             ++t;
             ++jl;
         }
-        if (m_zhuangbei.getjinggongma()->getName() == card::Jing_Gongma
-            && (*mm)->m_zhuangbei.getfangyuma()->getName() != card::Fang_Yuma)
+        if (!(m_zhuangbei.getjinggongma().isEmpty()))
             m_juli[i] = jl - 1;
-        else if (m_zhuangbei.getjinggongma()->getName() != card::Jing_Gongma
-                 && (*mm)->m_zhuangbei.getfangyuma()->getName() == card::Fang_Yuma)
+        if (!((*mm)->m_zhuangbei.getfangyuma().isEmpty()))
             m_juli[i] = jl + 1;
-        else {
-            m_juli[i] = jl;
-        }
         it++;
     }
 }
 
-void player::setjudg(
-    judgearea *j)
+int player::getjuli(
+    player *p1, player *p2)
 {
-    std::list<card *>::iterator it = (*j).getjudgarea().begin();
-    for (int i = 0; i < (*j).getjudgarea().size(); ++i, ++it) {
-        m_judg.getjudgarea().push_back((*it));
-    }
+    int num = abs(p1->getmynum() - p2->getmynum());
+    return m_juli[num];
+}
+
+void player::addjudg(
+    card *c)
+{
+    m_judg.addjudgarea(c);
 }
 
 judgearea *player::getjudg()
@@ -69,13 +67,28 @@ judgearea *player::getjudg()
     return &m_judg;
 }
 
-void player::setzhuangbei(
-    zhuangbeiqu *z)
+void player::addwuqi(
+    card *c)
 {
-    m_zhuangbei.setfangju(z->getfangju());
-    m_zhuangbei.setwuqi(z->getwuqi());
-    m_zhuangbei.setfangyuma(z->getfangyuma());
-    m_zhuangbei.setjinggongma(z->getjinggongma());
+    m_zhuangbei.addwuqi(c);
+}
+
+void player::addfangju(
+    card *c)
+{
+    m_zhuangbei.addfangju(c);
+}
+
+void player::addjinggongma(
+    card *c)
+{
+    m_zhuangbei.addjinggongma(c);
+}
+
+void player::addfangyuma(
+    card *c)
+{
+    m_zhuangbei.addfangyuma(c);
 }
 
 zhuangbeiqu *player::getzhuangbei()
@@ -108,38 +121,33 @@ wujiang *player::getwujiang()
 void player::mopai(
     int num, GameManager *g)
 {
-    //if (m_mynum == g->getdangqianplayer()->getmynum())
     for (int i = 0; i < num; ++i) {
         m_cards.append(g->drawCard());
-        if (m_mynum == 1) {
-            qWarning() << "m_playhand的数量:" << g->gethandcards().size();
-            g->gethandcards().clear();
-            g->gethandcards().append(m_cards);
-            qWarning() << "m_cards的数量:" << m_cards.size();
         }
-    }
 }
 
 void player::setgongjijuli()
 {
-    m_gongjijuli = 0;
-    if (m_zhuangbei.getwuqi()->getName() == card::Ci_Xiongshuanggujian
-        || m_zhuangbei.getwuqi()->getName() == card::Han_Bingjian
-        || m_zhuangbei.getwuqi()->getName() == card::Gu_Dingdao
-        || m_zhuangbei.getwuqi()->getName() == card::Qing_Gangjian) {
-        m_gongjijuli += 2;
+    m_gongjijuli = 1;
+    if (m_zhuangbei.getwuqi().isEmpty())
+        return;
+    if (m_zhuangbei.getwuqi().first()->getName() == card::Ci_Xiongshuanggujian
+        || m_zhuangbei.getwuqi().first()->getName() == card::Han_Bingjian
+        || m_zhuangbei.getwuqi().first()->getName() == card::Gu_Dingdao
+        || m_zhuangbei.getwuqi().first()->getName() == card::Qing_Gangjian) {
+        m_gongjijuli = 2;
     }
-    if (m_zhuangbei.getwuqi()->getName() == card::Guan_Shifu
-        || m_zhuangbei.getwuqi()->getName() == card::Qing_Longyanyuedao
-        || m_zhuangbei.getwuqi()->getName() == card::Zhang_Bashemao) {
-        m_gongjijuli += 3;
+    if (m_zhuangbei.getwuqi().first()->getName() == card::Guan_Shifu
+        || m_zhuangbei.getwuqi().first()->getName() == card::Qing_Longyanyuedao
+        || m_zhuangbei.getwuqi().first()->getName() == card::Zhang_Bashemao) {
+        m_gongjijuli = 3;
     }
-    if (m_zhuangbei.getwuqi()->getName() == card::Zhu_Queyushan
-        || m_zhuangbei.getwuqi()->getName() == card::Fang_Tianhuaji) {
-        m_gongjijuli += 4;
+    if (m_zhuangbei.getwuqi().first()->getName() == card::Zhu_Queyushan
+        || m_zhuangbei.getwuqi().first()->getName() == card::Fang_Tianhuaji) {
+        m_gongjijuli = 4;
     }
-    if (m_zhuangbei.getwuqi()->getName() == card::Qi_Linggong) {
-        m_gongjijuli += 5;
+    if (m_zhuangbei.getwuqi().first()->getName() == card::Qi_Linggong) {
+        m_gongjijuli = 5;
     }
 }
 
@@ -202,7 +210,25 @@ void player::yichuzhuangtai(
 void player::playcard(
     int handIndex, GameManager *g)
 {
-    g->playCard(handIndex);
+    if (handIndex < 0 || handIndex >= m_cards.size()) {
+        qWarning() << "Invalid hand index:" << handIndex;
+        qWarning() << "shoupai:" << m_cards.size();
+        return;
+    }
+    //m_cards[handIndex]->xiaoguo(this, this);
+    m_cards.removeAt(handIndex);
+}
+
+void player::clearcards()
+{
+    m_cards.clear();
+}
+
+void player::fuzhicards(
+    QList<card *> cds)
+{
+    clearcards();
+    m_cards.append(cds);
 }
 
 void player::settilishangxian(

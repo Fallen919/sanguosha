@@ -22,8 +22,11 @@ public:
     Q_INVOKABLE void discardCard(int handIndex);
     Q_INVOKABLE void shuffleDeck(); // 洗牌
 
+    //判定
+    Q_INVOKABLE card *panding();
+
     // 卡牌状态管理
-    Q_INVOKABLE void moveCardToDiscard(const QVariantMap &cardData); // 将卡牌移入弃牌堆
+    Q_INVOKABLE void moveCardToDiscard(card *c); // 将卡牌移入弃牌堆
 
     // 获取游戏状态（牌堆的牌数，或者获取牌堆，手牌的信息）
     int deckCount() const;

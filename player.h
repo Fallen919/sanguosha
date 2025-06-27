@@ -24,13 +24,17 @@ public:
 
     //设置距离
     Q_INVOKABLE void setjuli(GameManager *g);
+    Q_INVOKABLE int getjuli(player *p1, player *p2);
 
     //判定区
-    Q_INVOKABLE void setjudg(judgearea *j);
+    Q_INVOKABLE void addjudg(card *c);
     Q_INVOKABLE judgearea *getjudg();
 
     //装备区
-    Q_INVOKABLE void setzhuangbei(zhuangbeiqu *z);
+    Q_INVOKABLE void addwuqi(card *c);
+    Q_INVOKABLE void addfangju(card *c);
+    Q_INVOKABLE void addjinggongma(card *c);
+    Q_INVOKABLE void addfangyuma(card *c);
     Q_INVOKABLE zhuangbeiqu *getzhuangbei();
 
     //武将
@@ -77,6 +81,12 @@ public:
 
     //出牌
     Q_INVOKABLE void playcard(int handIndex, GameManager *g);
+
+    //清空手牌
+    Q_INVOKABLE void clearcards();
+
+    //手牌复制成
+    Q_INVOKABLE void fuzhicards(QList<card *> cds);
 
 private:
     int m_wanjiashu;         //玩家数

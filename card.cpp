@@ -1,5 +1,7 @@
 #include "card.h"
 #include "player.h"
+#include "gamemanager.h"
+GameManager* g;
 card::card(
     QObject* parent)
     : QObject{parent}
@@ -56,6 +58,8 @@ bool card::xiaoguo(
 {
     switch (m_name) {
     case Sha:
+        if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
+            return false;
         if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
@@ -85,6 +89,8 @@ bool card::xiaoguo(
         break;
 
     case Lei_Sha:
+        if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
+            return false;
         if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
@@ -96,6 +102,8 @@ bool card::xiaoguo(
         break;
 
     case Huo_Sha:
+        if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
+            return false;
         if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
@@ -108,7 +116,8 @@ bool card::xiaoguo(
         break;
 
     case Wu_Zhongshengyou:
-
+        emit xunwenxiangyingwuxiekeji();
+        mubiao->mopai(2, g);
         break;
 
     case Wu_Gufengdeng:
@@ -136,11 +145,14 @@ bool card::xiaoguo(
         break;
 
     case Bing_Niangchunduan:
+        mubiao->addjudg(this);
+        return true;
 
         break;
 
     case Le_Busishu:
-
+        mubiao->addjudg(this);
+        return true;
         break;
 
     case Jue_Dou:
@@ -164,74 +176,212 @@ bool card::xiaoguo(
         break;
 
     case Shan_Dian:
+        mubiao->addjudg(this);
+        return true;
 
         break;
 
     case Zhu_Geliannv:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Zhu_Geliannv", 1);
+        return true;
 
         break;
 
     case Ci_Xiongshuanggujian:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Ci_Xiongshuanggujian", 1);
+        return true;
 
         break;
 
     case Han_Bingjian:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Han_Bingjian", 1);
+        return true;
 
         break;
 
     case Fang_Tianhuaji:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Fang_Tianhuaji", 1);
+        return true;
 
         break;
 
     case Zhu_Queyushan:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Zhu_Queyushan", 1);
+        return true;
 
         break;
 
     case Zhang_Bashemao:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Zhang_Bashemao", 1);
+        return true;
 
         break;
 
     case Gu_Dingdao:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Gu_Dingdao", 1);
+        return true;
 
         break;
 
     case Guan_Shifu:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Guan_Shifu", 1);
+        return true;
 
         break;
 
     case Qi_Linggong:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Qi_Linggong", 1);
+        return true;
 
         break;
 
     case Qing_Longyanyuedao:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Qing_Longyanyuedao", 1);
+        return true;
 
         break;
 
     case Qing_Gangjian:
+        if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addwuqi(this);
+        mubiao->addzhuangtai("Qing_Gangjian", 1);
+        return true;
 
         break;
 
     case Ba_Guazhen:
+        if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getfangju().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addfangju(this);
+        mubiao->addzhuangtai("Ba_Guazhen", 1);
+        return true;
 
         break;
 
     case Teng_Jia:
+        if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getfangju().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addfangju(this);
+        mubiao->addzhuangtai("Teng_Jia", 1);
+        return true;
 
         break;
 
     case Ren_Wangdun:
+        if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getfangju().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addfangju(this);
+        mubiao->addzhuangtai("Ren_Wangdun", 1);
+        return true;
 
         break;
 
     case Bai_Yingshizi:
+        if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getfangju().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addfangju(this);
+        mubiao->addzhuangtai("Bai_Yingshizi", 1);
+        return true;
 
         break;
 
     case Fang_Yuma:
+        if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getfangju().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addfangju(this);
+        mubiao->addzhuangtai("Fang_Yuma", 1);
+        return true;
 
         break;
 
     case Jing_Gongma:
+        if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
+            card* cd = mubiao->getzhuangbei()->getfangju().first();
+            mubiao->yichuzhuangtai(cd->NewGetName());
+            g->moveCardToDiscard(cd);
+        }
+        mubiao->addfangju(this);
+        mubiao->addzhuangtai("Jing_Gongma", 1);
+        return true;
 
         break;
 

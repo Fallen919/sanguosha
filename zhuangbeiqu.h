@@ -8,23 +8,23 @@ class zhuangbeiqu : public QObject
 public:
     explicit zhuangbeiqu(QObject *parent = nullptr);
 
-    Q_INVOKABLE void setwuqi(card *wq);
-    Q_INVOKABLE card *getwuqi();
+    Q_INVOKABLE void addwuqi(card *wq);
+    Q_INVOKABLE QList<card *> getwuqi();
 
-    Q_INVOKABLE void setfangju(card *fj);
-    Q_INVOKABLE card *getfangju();
+    Q_INVOKABLE void addfangju(card *fj);
+    Q_INVOKABLE QList<card *> getfangju();
 
-    Q_INVOKABLE void setjinggongma(card *jgm);
-    Q_INVOKABLE card *getjinggongma();
+    Q_INVOKABLE void addjinggongma(card *jgm);
+    Q_INVOKABLE QList<card *> getjinggongma();
 
-    Q_INVOKABLE void setfangyuma(card *fym);
-    Q_INVOKABLE card *getfangyuma();
+    Q_INVOKABLE void addfangyuma(card *fym);
+    Q_INVOKABLE QList<card *> getfangyuma();
 
 private:
-    card *m_wuqi;
-    card *m_fangju;
-    card *m_jingongma;
-    card *m_fangyuma;
+    QList<card *> m_wuqi;
+    QList<card *> m_fangju;
+    QList<card *> m_jinggongma;
+    QList<card *> m_fangyuma;
 
 signals:
 };
