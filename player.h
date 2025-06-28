@@ -80,13 +80,15 @@ public:
     Q_INVOKABLE void yichuzhuangtai(const QString zhuangtai);
 
     //出牌
-    Q_INVOKABLE void playcard(int handIndex, GameManager *g);
+    Q_INVOKABLE bool playcard(int handIndex, GameManager *g);
 
     //清空手牌
     Q_INVOKABLE void clearcards();
 
     //手牌复制成
     Q_INVOKABLE void fuzhicards(QList<card *> cds);
+
+    Q_INVOKABLE int getPlayerIndex() const;
 
 private:
     int m_wanjiashu;         //玩家数

@@ -7,14 +7,18 @@
 #include "carddex.h"
 #include <list>
 
-class GameManager : public QObject {
+class GameManager : public QObject
+{
     Q_OBJECT
-    Q_PROPERTY(int deckCount READ deckCount NOTIFY deckCountChanged)
-    Q_PROPERTY(int discardPileCount READ discardPileCount NOTIFY discardPileChanged)
+    Q_PROPERTY(
+        int deckCount READ deckCount NOTIFY deckCountChanged)
+    Q_PROPERTY(
+        int discardPileCount READ discardPileCount NOTIFY discardPileChanged)
+    Q_PROPERTY(
+        bool isSelectingTarget READ isSelectingTarget NOTIFY isSelectingTargetChanged)
 
 public:
     explicit GameManager(QObject *parent = nullptr);
-    static GameManager *pt();
 
     // 玩家操作
     Q_INVOKABLE card *drawCard();
@@ -44,15 +48,28 @@ public:
     Carddex *getcarddex();
     QList<card *> gethandcards();
 
+    Q_INVOKABLE void selectTargetPlayer(int playerIndex); // 新增目标选择方法
+    Q_INVOKABLE void cancelTargetSelection();             // 取消目标选择
+    Q_INVOKABLE bool requiresTarget(int handIndex);       // 判断卡牌是否需要目标
+    Q_INVOKABLE void startTargetSelection(int cardIndex); // 开始目标选择
+
+    bool isSelectingTarget() const { return m_isSelectingTarget; }
+
 signals:
     // 游戏状态
-    void deckCountChanged(int count); // 牌堆数量变化
+    void deckCountChanged(int count);   // 牌堆数量变化
     void discardPileChanged(int count); // 弃牌堆数量变化
     void cardAdded(const QVariantMap &cardData);
     void cardRemoved(int index);
-    void cardPlayed(const QVariantMap &cardData); // 卡牌被使用（锦囊牌，装备牌使用后可能尚未进入弃牌堆）
-    void cardDiscarded(const QVariantMap &cardData); // 卡牌被弃置（直接进入弃牌堆）
-    void cardMovedToDiscard(const QVariantMap &cardData); // 卡牌进入弃牌堆
+    void cardPlayed(
+        const QVariantMap &cardData); // 卡牌被使用（锦囊牌，装备牌使用后可能尚未进入弃牌堆）
+    void cardDiscarded(const QVariantMap &cardData);                 // 卡牌被弃置（直接进入弃牌堆）
+    void cardMovedToDiscard(const QVariantMap &cardData);            // 卡牌进入弃牌堆
+    void targetSelectionStarted(int cardIndex);                      // 目标选择开始信号
+    void targetSelectionCanceled();                                  // 目标选择取消信号
+    void cardPlayedWithTarget(int cardIndex, int targetPlayerIndex); // 带目标的出牌信号
+    void isSelectingTargetChanged(bool isSelecting);                 // 目标选择状态改变
+    void handCardsReset();
 
 private:
     Carddex m_carddex;
@@ -60,5 +77,6 @@ private:
     // QList<card> m_prevHand;
     std::list<player *> m_player;
     player *m_dangqianplayer;
-    static GameManager *m_pt;
+    int m_selectedCardIndex = -1;     // 当前选中的卡牌索引
+    bool m_isSelectingTarget = false; // 是否正在选择目标
 };

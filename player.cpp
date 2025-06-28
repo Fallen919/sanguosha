@@ -1,6 +1,11 @@
 #include "player.h"
 #include "gamemanager.h"
-player::player(QObject *parent) : QObject{parent} {}
+player::player(
+    QObject *parent)
+    : QObject{parent}
+{
+    setgongjijuli();
+}
 
 void player::setwanjiashu(
     int num)
@@ -207,16 +212,24 @@ void player::yichuzhuangtai(
     emit yichuzt(zhuangtai);
 }
 
-void player::playcard(
+bool player::playcard(
     int handIndex, GameManager *g)
 {
     if (handIndex < 0 || handIndex >= m_cards.size()) {
         qWarning() << "Invalid hand index:" << handIndex;
         qWarning() << "shoupai:" << m_cards.size();
-        return;
+        return false;
     }
-    //m_cards[handIndex]->xiaoguo(this, this);
-    m_cards.removeAt(handIndex);
+    if (m_cards[handIndex]->xiaoguo(this, this, g)) {
+        if (m_cards[handIndex]->getTypeString() != "Zhuang_Bei"
+            && m_cards[handIndex]->NewGetNameString() != "Shan_Dian"
+            && m_cards[handIndex]->NewGetNameString() != "Le_Busishu"
+            && m_cards[handIndex]->NewGetNameString() != "Bing_Niangchunduan")
+            g->moveCardToDiscard(m_cards[handIndex]);
+        m_cards.removeAt(handIndex);
+        return true;
+    }
+    return false;
 }
 
 void player::clearcards()
@@ -229,6 +242,11 @@ void player::fuzhicards(
 {
     clearcards();
     m_cards.append(cds);
+}
+
+int player::getPlayerIndex() const
+{
+    return m_mynum;
 }
 
 void player::settilishangxian(

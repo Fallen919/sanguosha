@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     GameManager gameManager;
     engine.rootContext()->setContextProperty("gameManager", &gameManager);
     engine.rootContext()->setContextProperty("cardDex", &(*gameManager.getcarddex()));
-    const QUrl url(QUrl::fromLocalFile("/root/qt/sha/main.qml"));
+    const QUrl url(QUrl::fromLocalFile("/root/qt/sha2/main.qml"));
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreated,

@@ -1,4 +1,4 @@
-// PlayerArea.qml
+
 import QtQuick
 import QtQuick.Controls
 
@@ -6,20 +6,80 @@ Item {
     id: playerArea
     property string playerName
     property int health
-    property int playerIndex  // 添加这个属性
+    property int playerIndex
+    property bool isSelectable: false
+    property bool isSelected: false
+
+    signal selected(int playerIndex)
+
+    onIsSelectableChanged: {
+        if (isSelectable) {
+            state = "selectable";
+        } else {
+            state = "";
+            isSelected = false;
+        }
+    }
+
+    onIsSelectedChanged: {
+        if (isSelected) {
+            state = "selected";
+        } else if (isSelectable) {
+            state = "selectable";
+        } else {
+            state = "";
+        }
+    }
+
+    states: [
+        State {
+            name: "selectable"
+            PropertyChanges {
+                target: highlight
+                visible: true
+                color: "yellow"
+                opacity: 0.5
+            }
+        },
+        State {
+            name: "selected"
+            PropertyChanges {
+                target: highlight
+                visible: true
+                color: "gold"
+                opacity: 0.8
+            }
+        }
+    ]
+
+    Rectangle {
+        id: highlight
+        anchors.fill: parent
+        radius: 10
+        visible: false
+        color: "transparent"
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            if (playerArea.isSelectable) {
+                playerArea.isSelected = true;
+                playerArea.selected(playerIndex);
+            }
+        }
+    }
 
     Column {
         anchors.centerIn: parent
         spacing: 10
 
-        // 玩家头像
         Image {
             source: "qrc:/xcm2.jpg"
             width: 80; height: 80
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
-        // 玩家名字
         Text {
             text: playerName
             color: "white"
@@ -28,7 +88,6 @@ Item {
             style: Text.Outline; styleColor: "black"
         }
 
-        // 血量显示
         Row {
             spacing: 5
             anchors.horizontalCenter: parent.horizontalCenter
@@ -42,7 +101,6 @@ Item {
             }
         }
 
-        // 装备区
         Row {
             spacing: 5
             anchors.horizontalCenter: parent.horizontalCenter
@@ -59,7 +117,6 @@ Item {
         }
     }
 
-    // 边框
     Rectangle {
         anchors.fill: parent
         color: "transparent"

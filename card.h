@@ -214,6 +214,48 @@ public:
         }
     }
 
+    Q_INVOKABLE bool requiresTarget() const
+    {
+        switch (m_name) {
+        case Sha:
+            return true;
+            break;
+        case Lei_Sha:
+            return true;
+            break;
+        case Huo_Sha:
+            return true;
+            break;
+        case Jue_Dou:
+            return true;
+            break;
+        case Guo_Hechaiqiao:
+            return true;
+            break;
+        case Shun_Shouqianyang:
+            return true;
+            break;
+        case Huo_Gong:
+            return true;
+            break;
+        case Jie_Daosharen:
+            return true;
+            break;
+        case Bing_Niangchunduan:
+            return true;
+            break;
+        case Tie_Suolianhuan:
+            return true;
+            break;
+        case Le_Busishu:
+            return true;
+            break;
+
+        default:
+            return false;
+        }
+    }
+
     // 修改获取方法，返回字符串而不是枚举值
     CardName getName() const;
     QString NewGetName() const { return NewGetNameString(); }
@@ -239,7 +281,7 @@ public:
     void setType(const QString& type);
     void setPoint(int point);
 
-    Q_INVOKABLE bool xiaoguo(player* laiyuan, player* mubiao);
+    Q_INVOKABLE bool xiaoguo(player* laiyuan, player* mubiao, GameManager* g);
 
     card(CardName name, CardType type, CardSuit suit, CardPoint point);
 

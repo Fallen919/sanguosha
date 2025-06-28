@@ -1,7 +1,6 @@
 #include "card.h"
 #include "player.h"
 #include "gamemanager.h"
-GameManager* g;
 card::card(
     QObject* parent)
     : QObject{parent}
@@ -54,13 +53,13 @@ void card::setPoint(
 }
 
 bool card::xiaoguo(
-    player* laiyuan, player* mubiao)
+    player* laiyuan, player* mubiao, GameManager* g)
 {
     switch (m_name) {
     case Sha:
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
             return false;
-        if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
+        if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
         if (mubiao->isbaohan("Teng_Jia"))
@@ -77,6 +76,8 @@ bool card::xiaoguo(
         break;
 
     case Tao:
+        if (mubiao->gettili() == mubiao->gettilishangxian())
+            return false;
         return mubiao->huixue(1);
         break;
 
@@ -91,7 +92,7 @@ bool card::xiaoguo(
     case Lei_Sha:
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
             return false;
-        if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
+        if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
         emit xuyaoxiangyingshan();
@@ -104,7 +105,7 @@ bool card::xiaoguo(
     case Huo_Sha:
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
             return false;
-        if (mubiao->isbaohan("Ren_Wang_Dun") && this->getSuit() == "card::Hei_Tao"
+        if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
         emit xuyaoxiangyingshan();
@@ -116,8 +117,9 @@ bool card::xiaoguo(
         break;
 
     case Wu_Zhongshengyou:
-        emit xunwenxiangyingwuxiekeji();
+        //emit xunwenxiangyingwuxiekeji();
         mubiao->mopai(2, g);
+        return true;
         break;
 
     case Wu_Gufengdeng:
@@ -184,7 +186,8 @@ bool card::xiaoguo(
     case Zhu_Geliannv:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -196,7 +199,8 @@ bool card::xiaoguo(
     case Ci_Xiongshuanggujian:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -208,7 +212,8 @@ bool card::xiaoguo(
     case Han_Bingjian:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -220,7 +225,8 @@ bool card::xiaoguo(
     case Fang_Tianhuaji:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -232,7 +238,8 @@ bool card::xiaoguo(
     case Zhu_Queyushan:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -244,7 +251,8 @@ bool card::xiaoguo(
     case Zhang_Bashemao:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -256,7 +264,8 @@ bool card::xiaoguo(
     case Gu_Dingdao:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -268,7 +277,8 @@ bool card::xiaoguo(
     case Guan_Shifu:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -280,7 +290,8 @@ bool card::xiaoguo(
     case Qi_Linggong:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -292,7 +303,8 @@ bool card::xiaoguo(
     case Qing_Longyanyuedao:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -304,7 +316,8 @@ bool card::xiaoguo(
     case Qing_Gangjian:
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -316,7 +329,8 @@ bool card::xiaoguo(
     case Ba_Guazhen:
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -328,7 +342,8 @@ bool card::xiaoguo(
     case Teng_Jia:
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -340,7 +355,8 @@ bool card::xiaoguo(
     case Ren_Wangdun:
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -352,7 +368,8 @@ bool card::xiaoguo(
     case Bai_Yingshizi:
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -364,7 +381,8 @@ bool card::xiaoguo(
     case Fang_Yuma:
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removefangyuma();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -376,7 +394,8 @@ bool card::xiaoguo(
     case Jing_Gongma:
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
-            mubiao->yichuzhuangtai(cd->NewGetName());
+            mubiao->yichuzhuangtai(cd->NewGetNameString());
+            mubiao->getzhuangbei()->removejinggongma();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);

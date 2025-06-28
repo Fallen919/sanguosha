@@ -9,15 +9,19 @@ public:
     explicit zhuangbeiqu(QObject *parent = nullptr);
 
     Q_INVOKABLE void addwuqi(card *wq);
+    Q_INVOKABLE void removewuqi();
     Q_INVOKABLE QList<card *> getwuqi();
 
     Q_INVOKABLE void addfangju(card *fj);
+    Q_INVOKABLE void removefangju();
     Q_INVOKABLE QList<card *> getfangju();
 
     Q_INVOKABLE void addjinggongma(card *jgm);
+    Q_INVOKABLE void removejinggongma();
     Q_INVOKABLE QList<card *> getjinggongma();
 
     Q_INVOKABLE void addfangyuma(card *fym);
+    Q_INVOKABLE void removefangyuma();
     Q_INVOKABLE QList<card *> getfangyuma();
 
 private:
