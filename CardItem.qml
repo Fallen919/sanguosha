@@ -13,6 +13,7 @@
 //     property bool isSelected: false
 //     property int cardIndex: -1
 //     property bool requiresTarget: false
+//     property bool isResponseCard: false
 
 //     signal playCard()
 //     signal discardCard()
@@ -35,6 +36,11 @@
 //             name: "selected"
 //             PropertyChanges { target: root; y: -40; z: 10 }
 //             PropertyChanges { target: actionButtons; visible: true }
+//         },
+//         State {
+//             name: "response"
+//             PropertyChanges { target: root; scale: 1.1; z: 20 }
+//             PropertyChanges { target: cardImage; opacity: 1.0 }
 //         }
 //     ]
 
@@ -76,6 +82,11 @@
 //                 NumberAnimation { property: "y"; duration: 200; to: -40 }
 //                 NumberAnimation { property: "z"; duration: 200; to: 10 }
 //             }
+//         },
+//         Transition {
+//             to: "response"
+//             NumberAnimation { property: "scale"; duration: 200; to: 1.1 }
+//             NumberAnimation { property: "z"; duration: 200; to: 20 }
 //         }
 //     ]
 
@@ -105,7 +116,7 @@
 //             color: "transparent"
 //             border {
 //                 width: 3;
-//                 color: isSelected ? "gold" : "transparent"
+//                 color: isSelected ? "gold" : (isResponseCard ? "green" : "transparent")
 //             }
 //             radius: 5
 //         }
@@ -219,10 +230,12 @@
 //         text: {
 //             if (isSelected) {
 //                 return requiresTarget ? "请选择目标" : "已选中";
+//             } else if (isResponseCard) {
+//                 return "可响应";
 //             }
 //             return ""
 //         }
-//         color: requiresTarget ? "#4CAF50" : "yellow"
+//         color: requiresTarget ? "#4CAF50" : (isResponseCard ? "green" : "yellow")
 //         font.bold: true
 //         font.pixelSize: 16
 //         style: Text.Outline
@@ -234,8 +247,16 @@
 //         anchors.fill: parent
 //         hoverEnabled: true
 //         onClicked: {
-//             console.log("卡牌点击:", cardIndex)
-//             gameArea.selectCard(cardIndex);
+//             if (isResponseCard) {
+//                 // 在响应状态下，直接打出这张牌作为响应
+//                 console.log("打出响应牌:", cardIndex);
+//                 if (gameManager) {
+//                     gameManager.playResponseCard(cardIndex);
+//                 }
+//             } else {
+//                 console.log("卡牌点击:", cardIndex)
+//                 gameArea.selectCard(cardIndex);
+//             }
 //         }
 //         onEntered: if (!isSelected) root.state = "hovered"
 //         onExited: if (!isSelected) root.state = "inHand"
@@ -262,6 +283,7 @@ Item {
     property bool isSelected: false
     property int cardIndex: -1
     property bool requiresTarget: false
+    property bool isResponseCard: false
 
     signal playCard()
     signal discardCard()
@@ -284,6 +306,11 @@ Item {
             name: "selected"
             PropertyChanges { target: root; y: -40; z: 10 }
             PropertyChanges { target: actionButtons; visible: true }
+        },
+        State {
+            name: "response"
+            PropertyChanges { target: root; scale: 1.1; z: 20 }
+            PropertyChanges { target: cardImage; opacity: 1.0 }
         }
     ]
 
@@ -325,6 +352,11 @@ Item {
                 NumberAnimation { property: "y"; duration: 200; to: -40 }
                 NumberAnimation { property: "z"; duration: 200; to: 10 }
             }
+        },
+        Transition {
+            to: "response"
+            NumberAnimation { property: "scale"; duration: 200; to: 1.1 }
+            NumberAnimation { property: "z"; duration: 200; to: 20 }
         }
     ]
 
@@ -354,7 +386,7 @@ Item {
             color: "transparent"
             border {
                 width: 3;
-                color: isSelected ? "gold" : "transparent"
+                color: isSelected ? "gold" : (isResponseCard ? "green" : "transparent")
             }
             radius: 5
         }
@@ -468,10 +500,12 @@ Item {
         text: {
             if (isSelected) {
                 return requiresTarget ? "请选择目标" : "已选中";
+            } else if (isResponseCard) {
+                return "可响应";
             }
             return ""
         }
-        color: requiresTarget ? "#4CAF50" : "yellow"
+        color: requiresTarget ? "#4CAF50" : (isResponseCard ? "green" : "yellow")
         font.bold: true
         font.pixelSize: 16
         style: Text.Outline
@@ -483,8 +517,16 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         onClicked: {
-            console.log("卡牌点击:", cardIndex)
-            gameArea.selectCard(cardIndex);
+            if (isResponseCard) {
+                // 在响应状态下，直接打出这张牌作为响应
+                console.log("打出响应牌:", cardIndex);
+                if (gameManager) {
+                    gameManager.playResponseCard(cardIndex);
+                }
+            } else {
+                console.log("卡牌点击:", cardIndex)
+                gameArea.selectCard(cardIndex);
+            }
         }
         onEntered: if (!isSelected) root.state = "hovered"
         onExited: if (!isSelected) root.state = "inHand"

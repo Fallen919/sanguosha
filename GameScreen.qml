@@ -6,16 +6,49 @@
 
 // Item {
 //     id: gameArea
-//     width: 1280
-//     height: 720
+//     anchors.fill: parent  // 关键修改：填充父容器
 //     signal backToMenu()
 
 //     property ListModel handCardsModel: ListModel {}
 //     property var topDiscardCard: ({})
 //     property int selectedCardIndex: -1
 //     property int selectedPlayerIndex: -1
+//     property bool isShanRequired: false
+//     property bool isWuXiekejiRequired: false
+//     property int responsePlayerIndex: -1
 
-//     // 1. 背景
+//     // 装备项组件
+//     Component {
+//         id: equipmentItemComponent
+
+//         Item {
+//             id: equipmentItem
+//             width: 80
+//             height: 30
+//             property string equipmentType: ""
+//             property string source: ""
+
+//             Row {
+//                 spacing: 5
+//                 anchors.centerIn: parent
+
+//                 Image {
+//                     width: 24
+//                     height: 24
+//                     source: equipmentItem.source
+//                 }
+
+//                 Text {
+//                     text: equipmentItem.equipmentType
+//                     color: "white"
+//                     font.pixelSize: 14
+//                     verticalAlignment: Text.AlignVCenter
+//                 }
+//             }
+//         }
+//     }
+
+//     // 1. 背景 - 填充整个游戏区域
 //     AnimatedImage {
 //         anchors.fill: parent
 //         source: "/root/Sanguosha/beijing.gif"
@@ -23,28 +56,34 @@
 //         fillMode: Image.PreserveAspectCrop
 //     }
 
-//     // 2. 牌堆区域
+//     // 2. 牌堆区域 - 移动到左上角
 //     Item {
 //         id: deckArea
-//         width: 150; height: 200
+//         width: parent.width * 0.12
+//         height: parent.height * 0.18
 //         anchors {
 //             top: parent.top
-//             horizontalCenter: parent.horizontalCenter
-//             topMargin: 50
+//             left: parent.left
+//             topMargin: parent.height * 0.05
+//             leftMargin: parent.width * 0.05
 //         }
 
 //         // 牌堆
 //         Image {
 //             id: deckBack
-//             source: "qrc:/paibei.webp"
-//             width: 120; height: 180
+//             width: parent.width * 0.8
+//             height: parent.height * 0.9
 //             anchors.centerIn: parent
+//             source: "qrc:/paibei.webp"
 
 //             Text {
 //                 anchors.centerIn: parent
 //                 text: gameManager ? gameManager.deckCount : "0"
 //                 color: "white"
-//                 font { bold: true; pixelSize: 24 }
+//                 font {
+//                     bold: true;
+//                     pixelSize: parent.height * 0.15
+//                 }
 //                 style: Text.Outline; styleColor: "black"
 //             }
 
@@ -59,34 +98,37 @@
 //         }
 //     }
 
-//     // 3. 手牌区域
+//     // 3. 手牌区域 - 确保填充底部
 //     Item {
 //         id: handArea
 //         anchors {
 //             bottom: parent.bottom
 //             left: parent.left
 //             right: parent.right
-//             bottomMargin: 20
+//             bottomMargin: parent.height * 0.03
 //         }
-//         height: 200
+//         height: parent.height * 0.28
 
 //         Flow {
 //             id: handCardsFlow
 //             anchors.centerIn: parent
-//             spacing: -40
-//             width: parent.width - 100
+//             spacing: -parent.width * 0.03
+//             width: parent.width * 0.9
 
 //             Repeater {
 //                 id: handCardsRepeater
 //                 model: handCardsModel
 
 //                 delegate: CardItem {
+//                     width: handArea.width * 0.1
+//                     height: handArea.height * 0.9
 //                     cardName: model.name
 //                     cardSuit: model.suit
 //                     point: model.point
 //                     cardIndex: index
 //                     isNewCard: model.isNew
 //                     isSelected: index === gameArea.selectedCardIndex
+//                     isResponseCard: model.isResponseCard
 
 //                     onPlayCard: {
 //                         if (gameManager) {
@@ -118,69 +160,121 @@
 //         }
 //     }
 
-//     // 4. 玩家区域
-//     Row {
-//         id: playersArea
-//         anchors {
-//             top: deckArea.bottom
-//             left: parent.left
-//             right: parent.right
-//             bottom: handArea.top
-//             margins: 20
+//     // 4. 玩家区域 - 确保填充整个空间
+//     Item {
+//         id: playersContainer
+//         anchors.fill: parent
+
+//         // 玩家2 (顶部中央)
+//         PlayerArea {
+//             id: player2Area
+//             width: parent.width * 0.25
+//             height: parent.height * 0.25
+//             anchors {
+//                 top: parent.top
+//                 horizontalCenter: parent.horizontalCenter
+//                 topMargin: parent.height * 0.15
+//             }
+//             playerName: "Player 2"
+//             health: 4
+//             playerIndex: 1
+//             isSelectable: gameManager && gameManager.isSelectingTarget
+
+//             onSelected: function(playerIdx) {
+//                 console.log("玩家区域点击:", playerIdx)
+//                 gameManager.selectTargetPlayer(playerIdx);
+//                 resetTargetSelection();
+//             }
 //         }
-//         spacing: 20
 
-//         Repeater {
-//             model: 2
-//             delegate: PlayerArea {
-//                 id: playerDelegate
-//                 width: (playersArea.width - playersArea.spacing * 3) / 4
-//                 height: playersArea.height
-//                 playerName: "Player " + (index + 1)
-//                 health: 4
-//                 playerIndex: index
-//                 isSelectable: gameManager && gameManager.isSelectingTarget
+//         // 玩家1 (右下角)
+//         PlayerArea {
+//             id: player1Area
+//             width: parent.width * 0.25
+//             height: parent.height * 0.25
+//             anchors {
+//                 bottom: handArea.top
+//                 right: parent.right
+//                 bottomMargin: parent.height * 0.05
+//                 rightMargin: parent.width * 0.05
+//             }
+//             playerName: "Player 1 (You)"
+//             health: 4
+//             playerIndex: 0
+//             isSelectable: gameManager && gameManager.isSelectingTarget
 
-//                 onSelected: function(playerIdx) {
-//                     console.log("玩家区域点击:", playerIdx)
-//                     gameManager.selectTargetPlayer(playerIdx);
-//                     resetTargetSelection();
+//             onSelected: function(playerIdx) {
+//                 console.log("玩家区域点击:", playerIdx)
+//                 gameManager.selectTargetPlayer(playerIdx);
+//                 resetTargetSelection();
+//             }
+
+//             // 装备区 - 添加到玩家1区域
+//             Column {
+//                 id: equipmentArea
+//                 anchors {
+//                     top: parent.bottom
+//                     horizontalCenter: parent.horizontalCenter
+//                     topMargin: parent.height * 0.05
+//                 }
+//                 spacing: 5
+
+//                 Text {
+//                     text: "装备区"
+//                     color: "white"
+//                     font.bold: true
+//                     font.pixelSize: 16
+//                     anchors.horizontalCenter: parent.horizontalCenter
 //                 }
 
-//                 // 判定区
-//                 Row {
-//                     anchors {
-//                         top: parent.top
-//                         horizontalCenter: parent.horizontalCenter
-//                         topMargin: -30
+//                 Grid {
+//                     columns: 2
+//                     spacing: 10
+
+//                     // 武器
+//                     Loader {
+//                         sourceComponent: equipmentItemComponent
+//                         property string equipmentType: "武器"
+//                         property string source: "qrc:/zhuangbei/zhugeliannu"
 //                     }
-//                     spacing: 5
-//                     visible: gameManager && gameManager.hasJudgeCards(playerIndex)
 
-//                     Repeater {
-//                         model: gameManager ? gameManager.getJudgeCards(playerIndex) : []
+//                     // 防具
+//                     Loader {
+//                         sourceComponent: equipmentItemComponent
+//                         property string equipmentType: "防具"
+//                         property string source: "qrc:/images/armor.png"
+//                     }
 
-//                         delegate: Image {
-//                             width: 40; height: 60
-//                             source: CardResources.cardFrontImages[modelData.name] ||
-//                                     CardResources.cardFrontImages.default
-//                         }
+//                     // 进攻马
+//                     Loader {
+//                         sourceComponent: equipmentItemComponent
+//                         property string equipmentType: "+1马"
+//                         property string source: "qrc:/zhuangbei/jinggongma"
+//                     }
+
+//                     // 防御马
+//                     Loader {
+//                         sourceComponent: equipmentItemComponent
+//                         property string equipmentType: "-1马"
+//                         property string source: "qrc:/zhuangbei/fangyuma"
 //                     }
 //                 }
 //             }
 //         }
 //     }
 
-//     // 5. 功能按钮
+//     // 5. 功能按钮 - 调整位置确保在屏幕上
 //     Row {
 //         anchors {
-//             bottom: parent.bottom
+//             bottom: handArea.top
 //             horizontalCenter: parent.horizontalCenter
-//             bottomMargin: 20
+//             bottomMargin: parent.height * 0.02
 //         }
-//         spacing: 20
+//         spacing: parent.width * 0.02
 
 //         Button {
+//             width: parent.width * 0.1
+//             height: parent.height * 0.05
 //             text: "洗牌"
 //             onClicked: {
 //                 if (gameManager) {
@@ -190,6 +284,8 @@
 //         }
 
 //         Button {
+//             width: parent.width * 0.1
+//             height: parent.height * 0.05
 //             text: "结束回合"
 //             onClicked: {
 //                 if (gameManager) {
@@ -199,8 +295,104 @@
 //         }
 
 //         Button {
+//             width: parent.width * 0.1
+//             height: parent.height * 0.05
 //             text: "退出"
 //             onClicked: Qt.quit()
+//         }
+//     }
+
+//     // 响应提示框 - 确保居中
+//     Rectangle {
+//         id: responsePanel
+//         anchors.centerIn: parent
+//         width: parent.width * 0.3
+//         height: parent.height * 0.2
+//         color: "#AA000000"
+//         border.color: "gold"
+//         border.width: 3
+//         radius: 10
+//         visible: isShanRequired || isWuXiekejiRequired
+
+//         Text {
+//             id: responseText
+//             anchors.top: parent.top
+//             anchors.horizontalCenter: parent.horizontalCenter
+//             anchors.topMargin: parent.height * 0.03
+//             text: {
+//                 if (isShanRequired) {
+//                     return "请响应【杀】，打出一张【闪】"
+//                 } else if (isWuXiekejiRequired) {
+//                     return "请响应【锦囊】，打出一张【无懈可击】"
+//                 }
+//                 return ""
+//             }
+//             color: "white"
+//             font.pixelSize: parent.height * 0.04
+//             font.bold: true
+//         }
+
+//         Row {
+//             anchors.centerIn: parent
+//             spacing: parent.width * 0.02
+
+//             Button {
+//                 width: responsePanel.width * 0.3
+//                 height: responsePanel.height * 0.2
+//                 text: "确定响应"
+//                 visible: (isShanRequired && currentPlayer.hasShan) ||
+//                          (isWuXiekejiRequired && currentPlayer.hasWuXiekeji)
+//                 onClicked: {
+//                     // 进入响应模式
+//                     resetResponseCards();
+//                 }
+//             }
+
+//             Button {
+//                 width: responsePanel.width * 0.3
+//                 height: responsePanel.height * 0.2
+//                 text: "取消响应"
+//                 onClicked: {
+//                     gameManager.cancelResponse();
+//                     isShanRequired = false;
+//                     isWuXiekejiRequired = false;
+//                     resetResponseCards();
+//                 }
+//             }
+//         }
+
+//         Text {
+//             anchors.bottom: parent.bottom
+//             anchors.horizontalCenter: parent.horizontalCenter
+//             anchors.bottomMargin: parent.height * 0.02
+//             text: "剩余时间: " + Math.ceil(responseTimer.remainingTime / 1000) + "秒"
+//             color: "white"
+//             font.pixelSize: parent.height * 0.03
+//         }
+//     }
+
+//     Timer {
+//         id: responseTimer
+//         interval: 1000
+//         repeat: true
+//         running: responsePanel.visible
+//         property int remainingTime: 15000
+
+//         onTriggered: {
+//             remainingTime -= 1000;
+//             if (remainingTime <= 0) {
+//                 stop();
+//                 gameManager.cancelResponse();
+//                 isShanRequired = false;
+//                 isWuXiekejiRequired = false;
+//                 resetResponseCards();
+//             }
+//         }
+
+//         onRunningChanged: {
+//             if (running) {
+//                 remainingTime = 15000;
+//             }
 //         }
 //     }
 
@@ -219,13 +411,10 @@
 //         target: gameManager
 
 //         function onCardAdded(cardData) {
-//             handCardsModel.append({
-//                 name: cardData.name,
-//                 suit: cardData.suit,
-//                 point: cardData.point,
-//                 type: cardData.type,
-//                 isNew: true
-//             });
+//             // 使用深拷贝创建新对象
+//             var newCard = JSON.parse(JSON.stringify(cardData));
+//             newCard.isResponseCard = false; // 初始化响应状态
+//             handCardsModel.append(newCard);
 //         }
 
 //         function onCardRemoved(index) {
@@ -244,16 +433,6 @@
 
 //         function onCardPlayed(cardData) {
 //             console.log("卡牌被使用:", cardData.name);
-
-//             if (cardData.type === "Ji_Ben" ||
-//                 cardData.name === "Wu_Zhongshengyou" ||
-//                 cardData.name === "Nan_Manruqin") {
-//                 gameManager.moveCardToDiscard(cardData);
-//             }
-//             else if (cardData.name === "Shan_Dian" ||
-//                      cardData.name === "Le_Busishu") {
-//                 gameManager.moveCardToJudgeArea(1, cardData);
-//             }
 //         }
 
 //         function onCardDiscarded(cardData) {
@@ -285,12 +464,9 @@
 
 //         function onTargetSelectionStarted(cardIndex) {
 //             console.log("目标选择开始，卡牌索引:", cardIndex);
-//             for (var i = 0; i < playersArea.children.length; i++) {
-//                 var playerArea = playersArea.children[i];
-//                 if (playerArea && playerArea.playerIndex !== undefined) {
-//                     playerArea.isSelectable = true;
-//                 }
-//             }
+//             // 更新玩家区域的可选状态
+//             player1Area.isSelectable = true;
+//             player2Area.isSelectable = true;
 //             cancelButton.visible = true;
 //         }
 
@@ -302,32 +478,66 @@
 //             resetTargetSelection();
 //         }
 
-//         // 新增：响应手牌重置信号
+//         // 响应手牌重置信号
 //         function onHandCardsReset() {
 //             console.log("手牌重置");
 //             handCardsModel.clear();
 //             var handCards = gameManager.getHandCards();
 //             for (var i = 0; i < handCards.length; i++) {
-//                 var cardData = handCards[i];
-//                 handCardsModel.append({
-//                     name: cardData.name,
-//                     suit: cardData.suit,
-//                     point: cardData.point,
-//                     type: cardData.type,
-//                     isNew: false
-//                 });
+//                 // 深拷贝卡牌数据
+//                 var cardData = JSON.parse(JSON.stringify(handCards[i]));
+//                 cardData.isResponseCard = false;
+//                 handCardsModel.append(cardData);
 //             }
+//         }
+
+//         function onRequireShanResponse(targetPlayer) {
+//             isShanRequired = true;
+//             responsePlayerIndex = targetPlayer.getPlayerIndex();
+//             responseTimer.start();
+
+//             // 标记所有闪牌为可响应
+//             for (var i = 0; i < handCardsModel.count; i++) {
+//                 if (handCardsModel.get(i).name === "Shan") {
+//                     handCardsModel.setProperty(i, "isResponseCard", true);
+//                 }
+//             }
+//         }
+
+//         function onRequireWuXiekejiResponse(sourceCard) {
+//             isWuXiekejiRequired = true;
+//             responseTimer.start();
+
+//             // 标记所有无懈可击牌为可响应
+//             for (var i = 0; i < handCardsModel.count; i++) {
+//                 if (handCardsModel.get(i).name === "Wu_Xiekeji") {
+//                     handCardsModel.setProperty(i, "isResponseCard", true);
+//                 }
+//             }
+//         }
+
+//         function onResponseReceived(responseCard, responder) {
+//             isShanRequired = false;
+//             isWuXiekejiRequired = false;
+//             resetResponseCards();
+//         }
+
+//         function onWuXiekejiResponseFinished() {
+//             isWuXiekejiRequired = false;
+//             resetResponseCards();
 //         }
 //     }
 
-//     // 取消按钮
+//     // 取消按钮 - 调整位置
 //     Button {
 //         id: cancelButton
 //         anchors {
 //             top: parent.top
 //             right: parent.right
-//             margins: 20
+//             margins: parent.width * 0.015
 //         }
+//         width: parent.width * 0.08
+//         height: parent.height * 0.05
 //         text: "取消选择"
 //         visible: false
 
@@ -344,6 +554,7 @@
 //             horizontalAlignment: Text.AlignHCenter
 //             verticalAlignment: Text.AlignVCenter
 //             font.bold: true
+//             font.pixelSize: parent.height * 0.02
 //         }
 
 //         onClicked: {
@@ -357,14 +568,10 @@
 //         if (gameManager) {
 //             var handCards = gameManager.getHandCards();
 //             for (var i = 0; i < handCards.length; i++) {
-//                 var cardData = handCards[i];
-//                 handCardsModel.append({
-//                     name: cardData.name,
-//                     suit: cardData.suit,
-//                     point: cardData.point,
-//                     type: cardData.type,
-//                     isNew: false
-//                 });
+//                 // 深拷贝卡牌数据
+//                 var cardData = JSON.parse(JSON.stringify(handCards[i]));
+//                 cardData.isResponseCard = false;
+//                 handCardsModel.append(cardData);
 //             }
 
 //             topDiscardCard = gameManager.getTopDiscardCard();
@@ -381,16 +588,19 @@
 //     // 重置目标选择状态
 //     function resetTargetSelection() {
 //         console.log("重置目标选择状态");
-//         for (var i = 0; i < playersArea.children.length; i++) {
-//             var playerArea = playersArea.children[i];
-//             if (playerArea && playerArea.playerIndex !== undefined) {
-//                 playerArea.isSelectable = false;
-//                 playerArea.isSelected = false;
-//             }
-//         }
-
+//         player1Area.isSelectable = false;
+//         player2Area.isSelectable = false;
+//         player1Area.isSelected = false;
+//         player2Area.isSelected = false;
 //         cancelButton.visible = false;
 //         selectedPlayerIndex = -1;
+//     }
+
+//     // 重置响应卡牌状态
+//     function resetResponseCards() {
+//         for (var i = 0; i < handCardsModel.count; i++) {
+//             handCardsModel.setProperty(i, "isResponseCard", false);
+//         }
 //     }
 // }
 import QtQuick
@@ -400,14 +610,47 @@ import Sanguosha.Resources
 
 Item {
     id: gameArea
-    width: 1280
-    height: 720
+    anchors.fill: parent
     signal backToMenu()
 
     property ListModel handCardsModel: ListModel {}
     property var topDiscardCard: ({})
     property int selectedCardIndex: -1
     property int selectedPlayerIndex: -1
+    property bool isShanRequired: false
+    property bool isWuXiekejiRequired: false
+    property int responsePlayerIndex: -1
+
+    // 装备项组件
+    Component {
+        id: equipmentItemComponent
+
+        Item {
+            id: equipmentItem
+            width: 70  // 缩小装备区大小
+            height: 25
+            property string equipmentType: ""
+            property string source: ""
+
+            Row {
+                spacing: 5
+                anchors.centerIn: parent
+
+                Image {
+                    width: 20  // 缩小图标
+                    height: 20
+                    source: equipmentItem.source
+                }
+
+                Text {
+                    text: equipmentItem.equipmentType
+                    color: "white"
+                    font.pixelSize: 12  // 缩小字体
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+        }
+    }
 
     // 1. 背景
     AnimatedImage {
@@ -417,28 +660,34 @@ Item {
         fillMode: Image.PreserveAspectCrop
     }
 
-    // 2. 牌堆区域
+    // 2. 牌堆区域 - 左上角
     Item {
         id: deckArea
-        width: 150; height: 200
+        width: parent.width * 0.1  // 缩小牌堆区域
+        height: parent.height * 0.15
         anchors {
             top: parent.top
-            horizontalCenter: parent.horizontalCenter
-            topMargin: 50
+            left: parent.left
+            topMargin: parent.height * 0.03
+            leftMargin: parent.width * 0.03
         }
 
         // 牌堆
         Image {
             id: deckBack
-            source: "qrc:/paibei.webp"
-            width: 120; height: 180
+            width: parent.width * 0.8
+            height: parent.height * 0.9
             anchors.centerIn: parent
+            source: "qrc:/paibei.webp"
 
             Text {
                 anchors.centerIn: parent
                 text: gameManager ? gameManager.deckCount : "0"
                 color: "white"
-                font { bold: true; pixelSize: 24 }
+                font {
+                    bold: true;
+                    pixelSize: parent.height * 0.15
+                }
                 style: Text.Outline; styleColor: "black"
             }
 
@@ -453,34 +702,37 @@ Item {
         }
     }
 
-    // 3. 手牌区域
+    // 3. 手牌区域 - 缩小卡片大小
     Item {
         id: handArea
         anchors {
             bottom: parent.bottom
             left: parent.left
             right: parent.right
-            bottomMargin: 20
+            bottomMargin: parent.height * 0.03
         }
-        height: 200
+        height: parent.height * 0.25  // 缩小手牌区域高度
 
         Flow {
             id: handCardsFlow
             anchors.centerIn: parent
-            spacing: -40
-            width: parent.width - 100
+            spacing: -parent.width * 0.03
+            width: parent.width * 0.9
 
             Repeater {
                 id: handCardsRepeater
                 model: handCardsModel
 
                 delegate: CardItem {
+                    width: handArea.width * 0.08  // 缩小卡片宽度
+                    height: handArea.height * 0.8  // 缩小卡片高度
                     cardName: model.name
                     cardSuit: model.suit
                     point: model.point
                     cardIndex: index
                     isNewCard: model.isNew
                     isSelected: index === gameArea.selectedCardIndex
+                    isResponseCard: model.isResponseCard
 
                     onPlayCard: {
                         if (gameManager) {
@@ -512,70 +764,123 @@ Item {
         }
     }
 
-    // 4. 玩家区域
-    Row {
-        id: playersArea
-        anchors {
-            top: deckArea.bottom
-            left: parent.left
-            right: parent.right
-            bottom: handArea.top
-            margins: 20
+    // 4. 玩家区域 - 缩小玩家大小
+    Item {
+        id: playersContainer
+        anchors.fill: parent
+
+        // 玩家2 (顶部中央) - 缩小大小
+        PlayerArea {
+            id: player2Area
+            width: parent.width * 0.2  // 缩小玩家宽度
+            height: parent.height * 0.2  // 缩小玩家高度
+            anchors {
+                top: parent.top
+                horizontalCenter: parent.horizontalCenter
+                topMargin: parent.height * 0.1  // 调整顶部间距
+            }
+            playerName: "Player 2"
+            health: 4
+            playerIndex: 1
+            isSelectable: gameManager && gameManager.isSelectingTarget
+
+            onSelected: function(playerIdx) {
+                console.log("玩家区域点击:", playerIdx)
+                gameManager.selectTargetPlayer(playerIdx);
+                resetTargetSelection();
+            }
         }
-        spacing: 20
 
-        Repeater {
-            model: 2
-            delegate: PlayerArea {
-                id: playerDelegate
-                width: (playersArea.width - playersArea.spacing * 3) / 4
-                height: playersArea.height
-                playerName: "Player " + (index + 1)
-                health: 4
-                playerIndex: index
-                isSelectable: gameManager && gameManager.isSelectingTarget
+        // 玩家1 (右下角) - 缩小大小
+        PlayerArea {
+            id: player1Area
+            width: parent.width * 0.2  // 缩小玩家宽度
+            height: parent.height * 0.2  // 缩小玩家高度
+            anchors {
+                bottom: handArea.top
+                right: parent.right
+                bottomMargin: parent.height * 0.03  // 调整底部间距
+                rightMargin: parent.width * 0.03  // 调整右边间距
+            }
+            playerName: "Player 1 (You)"
+            health: 4
+            playerIndex: 0
+            isSelectable: gameManager && gameManager.isSelectingTarget
 
-                onSelected: function(playerIdx) {
-                    console.log("玩家区域点击:", playerIdx)
-                    gameManager.selectTargetPlayer(playerIdx);
-                    resetTargetSelection();
+            onSelected: function(playerIdx) {
+                console.log("玩家区域点击:", playerIdx)
+                gameManager.selectTargetPlayer(playerIdx);
+                resetTargetSelection();
+            }
+
+            // 装备区 - 添加到玩家1区域
+            Column {
+                id: equipmentArea
+                anchors {
+                    top: parent.bottom
+                    horizontalCenter: parent.horizontalCenter
+                    topMargin: parent.height * 0.03  // 调整顶部间距
+                }
+                spacing: 5
+
+                Text {
+                    text: "装备区"
+                    color: "white"
+                    font.bold: true
+                    font.pixelSize: 14  // 缩小字体
+                    anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                // 判定区
-                Row {
-                    anchors {
-                        top: parent.top
-                        horizontalCenter: parent.horizontalCenter
-                        topMargin: -30
+                Grid {
+                    columns: 2
+                    spacing: 8  // 减小间距
+
+                    // 武器
+                    Loader {
+                        sourceComponent: equipmentItemComponent
+                        property string equipmentType: "武器"
+                        property string source: "qrc:/zhuangbei/zhugeliannu"
                     }
-                    spacing: 5
-                    visible: gameManager && gameManager.hasJudgeCards(playerIndex)
 
-                    Repeater {
-                        model: gameManager ? gameManager.getJudgeCards(playerIndex) : []
+                    // 防具
+                    Loader {
+                        sourceComponent: equipmentItemComponent
+                        property string equipmentType: "防具"
+                        property string source: "qrc:/images/armor.png"
+                    }
 
-                        delegate: Image {
-                            width: 40; height: 60
-                            source: CardResources.cardFrontImages[modelData.name] ||
-                                    CardResources.cardFrontImages.default
-                        }
+                    // 进攻马
+                    Loader {
+                        sourceComponent: equipmentItemComponent
+                        property string equipmentType: "+1马"
+                        property string source: "qrc:/zhuangbei/jinggongma"
+                    }
+
+                    // 防御马
+                    Loader {
+                        sourceComponent: equipmentItemComponent
+                        property string equipmentType: "-1马"
+                        property string source: "qrc:/zhuangbei/fangyuma"
                     }
                 }
             }
         }
     }
 
-    // 5. 功能按钮
+    // 5. 功能按钮 - 调整大小
     Row {
         anchors {
-            bottom: parent.bottom
+            bottom: handArea.top
             horizontalCenter: parent.horizontalCenter
-            bottomMargin: 20
+            bottomMargin: parent.height * 0.02
         }
-        spacing: 20
+        spacing: parent.width * 0.02
 
         Button {
+            width: parent.width * 0.08  // 缩小按钮
+            height: parent.height * 0.04
             text: "洗牌"
+            font.pixelSize: 12  // 缩小字体
             onClicked: {
                 if (gameManager) {
                     gameManager.shuffleDeck();
@@ -584,7 +889,10 @@ Item {
         }
 
         Button {
+            width: parent.width * 0.08
+            height: parent.height * 0.04
             text: "结束回合"
+            font.pixelSize: 12
             onClicked: {
                 if (gameManager) {
                     gameManager.endTurn();
@@ -593,8 +901,107 @@ Item {
         }
 
         Button {
+            width: parent.width * 0.08
+            height: parent.height * 0.04
             text: "退出"
+            font.pixelSize: 12
             onClicked: Qt.quit()
+        }
+    }
+
+    // 响应提示框 - 调整大小
+    Rectangle {
+        id: responsePanel
+        anchors.centerIn: parent
+        width: parent.width * 0.25  // 缩小宽度
+        height: parent.height * 0.18  // 缩小高度
+        color: "#AA000000"
+        border.color: "gold"
+        border.width: 3
+        radius: 10
+        visible: isShanRequired || isWuXiekejiRequired
+
+        Text {
+            id: responseText
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.topMargin: parent.height * 0.02  // 调整边距
+            text: {
+                if (isShanRequired) {
+                    return "请响应【杀】，打出一张【闪】"
+                } else if (isWuXiekejiRequired) {
+                    return "请响应【锦囊】，打出一张【无懈可击】"
+                }
+                return ""
+            }
+            color: "white"
+            font.pixelSize: parent.height * 0.035  // 缩小字体
+            font.bold: true
+        }
+
+        Row {
+            anchors.centerIn: parent
+            spacing: parent.width * 0.02
+
+            Button {
+                width: responsePanel.width * 0.3
+                height: responsePanel.height * 0.2
+                text: "确定响应"
+                font.pixelSize: 12  // 缩小字体
+                visible: (isShanRequired && currentPlayer.hasShan) ||
+                         (isWuXiekejiRequired && currentPlayer.hasWuXiekeji)
+                onClicked: {
+                    // 进入响应模式
+                    resetResponseCards();
+                }
+            }
+
+            Button {
+                width: responsePanel.width * 0.3
+                height: responsePanel.height * 0.2
+                text: "取消响应"
+                font.pixelSize: 12  // 缩小字体
+                onClicked: {
+                    gameManager.cancelResponse();
+                    isShanRequired = false;
+                    isWuXiekejiRequired = false;
+                    resetResponseCards();
+                }
+            }
+        }
+
+        Text {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: parent.height * 0.015  // 调整边距
+            text: "剩余时间: " + Math.ceil(responseTimer.remainingTime / 1000) + "秒"
+            color: "white"
+            font.pixelSize: parent.height * 0.025  // 缩小字体
+        }
+    }
+
+    Timer {
+        id: responseTimer
+        interval: 1000
+        repeat: true
+        running: responsePanel.visible
+        property int remainingTime: 15000
+
+        onTriggered: {
+            remainingTime -= 1000;
+            if (remainingTime <= 0) {
+                stop();
+                gameManager.cancelResponse();
+                isShanRequired = false;
+                isWuXiekejiRequired = false;
+                resetResponseCards();
+            }
+        }
+
+        onRunningChanged: {
+            if (running) {
+                remainingTime = 15000;
+            }
         }
     }
 
@@ -615,17 +1022,12 @@ Item {
         function onCardAdded(cardData) {
             // 使用深拷贝创建新对象
             var newCard = JSON.parse(JSON.stringify(cardData));
-            handCardsModel.append({
-                name: newCard.name,
-                suit: newCard.suit,
-                point: newCard.point,
-                type: newCard.type,
-                isNew: true
-            });
+            newCard.isResponseCard = false; // 初始化响应状态
+            handCardsModel.append(newCard);
         }
 
         function onCardRemoved(index) {
-            if (index >= 0 && index < handCardsModel.count) {
+            if (index >= 0 || index < handCardsModel.count) {
                 handCardsModel.remove(index);
 
                 if (gameArea.selectedCardIndex === index) {
@@ -671,12 +1073,9 @@ Item {
 
         function onTargetSelectionStarted(cardIndex) {
             console.log("目标选择开始，卡牌索引:", cardIndex);
-            for (var i = 0; i < playersArea.children.length; i++) {
-                var playerArea = playersArea.children[i];
-                if (playerArea && playerArea.playerIndex !== undefined) {
-                    playerArea.isSelectable = true;
-                }
-            }
+            // 更新玩家区域的可选状态
+            player1Area.isSelectable = true;
+            player2Area.isSelectable = true;
             cancelButton.visible = true;
         }
 
@@ -688,7 +1087,7 @@ Item {
             resetTargetSelection();
         }
 
-        // 新增：响应手牌重置信号
+        // 响应手牌重置信号
         function onHandCardsReset() {
             console.log("手牌重置");
             handCardsModel.clear();
@@ -696,26 +1095,60 @@ Item {
             for (var i = 0; i < handCards.length; i++) {
                 // 深拷贝卡牌数据
                 var cardData = JSON.parse(JSON.stringify(handCards[i]));
-                handCardsModel.append({
-                    name: cardData.name,
-                    suit: cardData.suit,
-                    point: cardData.point,
-                    type: cardData.type,
-                    isNew: false
-                });
+                cardData.isResponseCard = false;
+                handCardsModel.append(cardData);
             }
+        }
+
+        function onRequireShanResponse(targetPlayer) {
+            isShanRequired = true;
+            responsePlayerIndex = targetPlayer.getPlayerIndex();
+            responseTimer.start();
+
+            // 标记所有闪牌为可响应
+            for (var i = 0; i < handCardsModel.count; i++) {
+                if (handCardsModel.get(i).name === "Shan") {
+                    handCardsModel.setProperty(i, "isResponseCard", true);
+                }
+            }
+        }
+
+        function onRequireWuXiekejiResponse(sourceCard) {
+            isWuXiekejiRequired = true;
+            responseTimer.start();
+
+            // 标记所有无懈可击牌为可响应
+            for (var i = 0; i < handCardsModel.count; i++) {
+                if (handCardsModel.get(i).name === "Wu_Xiekeji") {
+                    handCardsModel.setProperty(i, "isResponseCard", true);
+                }
+            }
+        }
+
+        function onResponseReceived(responseCard, responder) {
+            isShanRequired = false;
+            isWuXiekejiRequired = false;
+            resetResponseCards();
+        }
+
+        function onWuXiekejiResponseFinished() {
+            isWuXiekejiRequired = false;
+            resetResponseCards();
         }
     }
 
-    // 取消按钮
+    // 取消按钮 - 调整大小
     Button {
         id: cancelButton
         anchors {
             top: parent.top
             right: parent.right
-            margins: 20
+            margins: parent.width * 0.015
         }
+        width: parent.width * 0.07  // 缩小按钮
+        height: parent.height * 0.04
         text: "取消选择"
+        font.pixelSize: 12  // 缩小字体
         visible: false
 
         background: Rectangle {
@@ -731,6 +1164,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             font.bold: true
+            font.pixelSize: parent.height * 0.02
         }
 
         onClicked: {
@@ -746,13 +1180,8 @@ Item {
             for (var i = 0; i < handCards.length; i++) {
                 // 深拷贝卡牌数据
                 var cardData = JSON.parse(JSON.stringify(handCards[i]));
-                handCardsModel.append({
-                    name: cardData.name,
-                    suit: cardData.suit,
-                    point: cardData.point,
-                    type: cardData.type,
-                    isNew: false
-                });
+                cardData.isResponseCard = false;
+                handCardsModel.append(cardData);
             }
 
             topDiscardCard = gameManager.getTopDiscardCard();
@@ -769,15 +1198,18 @@ Item {
     // 重置目标选择状态
     function resetTargetSelection() {
         console.log("重置目标选择状态");
-        for (var i = 0; i < playersArea.children.length; i++) {
-            var playerArea = playersArea.children[i];
-            if (playerArea && playerArea.playerIndex !== undefined) {
-                playerArea.isSelectable = false;
-                playerArea.isSelected = false;
-            }
-        }
-
+        player1Area.isSelectable = false;
+        player2Area.isSelectable = false;
+        player1Area.isSelected = false;
+        player2Area.isSelected = false;
         cancelButton.visible = false;
         selectedPlayerIndex = -1;
+    }
+
+    // 重置响应卡牌状态
+    function resetResponseCards() {
+        for (var i = 0; i < handCardsModel.count; i++) {
+            handCardsModel.setProperty(i, "isResponseCard", false);
+        }
     }
 }

@@ -35,6 +35,10 @@ public:
     Q_INVOKABLE void addfangju(card *c);
     Q_INVOKABLE void addjinggongma(card *c);
     Q_INVOKABLE void addfangyuma(card *c);
+    Q_INVOKABLE void removewuqi();
+    Q_INVOKABLE void removefangju();
+    Q_INVOKABLE void removejinggongma();
+    Q_INVOKABLE void removefangyuma();
     Q_INVOKABLE zhuangbeiqu *getzhuangbei();
 
     //武将
@@ -89,6 +93,10 @@ public:
     Q_INVOKABLE void fuzhicards(QList<card *> cds);
 
     Q_INVOKABLE int getPlayerIndex() const;
+
+    Q_INVOKABLE bool hasShan() const;
+    Q_INVOKABLE bool hasWuXiekeji() const;
+    Q_INVOKABLE void removeCard(card *cardToRemove);
 
 private:
     int m_wanjiashu;         //玩家数

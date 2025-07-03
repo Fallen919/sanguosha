@@ -285,13 +285,24 @@ public:
 
     card(CardName name, CardType type, CardSuit suit, CardPoint point);
 
+    // 添加卡牌是否被无效化的标志
+    bool isInvalidated() const { return m_invalidated; }
+    void setInvalidated(
+        bool invalidated)
+    {
+        m_invalidated = invalidated;
+    }
+
 private:
     CardSuit m_suit;
     CardPoint m_point;
     CardName m_name;
     CardType m_type;
+    bool m_invalidated = false; //卡牌是否无效
 
 signals:
-    void xuyaoxiangyingshan(); //需要响应闪
-    void xunwenxiangyingwuxiekeji(); //询问是否响应无懈可击
+    void xuyaoxiangyingshan();             //需要响应闪
+    void xunwenxiangyingwuxiekeji();       //询问是否响应无懈可击
+    void xuyaowuxiekeji(card* sourceCard); // 需要响应无懈可击
+    void wuxiekejiResult(bool success);    // 无懈可击响应结果
 };

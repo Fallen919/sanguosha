@@ -32,25 +32,20 @@ int player::getmynum()
 void player::setjuli(
     GameManager *g)
 {
+    m_juli.push_back(0);
     int num = m_mynum;
-    for (int i = 0; i < m_wanjiashu; ++i) {
+    for (int i = 1; i <= m_wanjiashu; ++i) {
+        if (i == m_mynum)
+            continue;
         std::list<player *>::iterator it = g->getplayers().begin();
-        std::list<player *>::iterator t = g->getplayers().end();
+        while ((*it)->getmynum() != i)
+            ++it;
         int jl = 0;
-        for (int m = 0; m <= i; ++m) {
-            ++it;
-        }
-        std::list<player *>::iterator mm = it;
-        while (num != (*it)->m_mynum || num != (*t)->m_mynum) {
-            ++it;
-            ++t;
-            ++jl;
-        }
+        jl = std::min(abs(i - m_mynum), abs(m_wanjiashu - (i - m_mynum)));
         if (!(m_zhuangbei.getjinggongma().isEmpty()))
-            m_juli[i] = jl - 1;
-        if (!((*mm)->m_zhuangbei.getfangyuma().isEmpty()))
-            m_juli[i] = jl + 1;
-        it++;
+            m_juli.push_back(jl - 1);
+        if (!((*it)->m_zhuangbei.getfangyuma().isEmpty()))
+            m_juli.push_back(jl + 1);
     }
 }
 
@@ -94,6 +89,26 @@ void player::addfangyuma(
     card *c)
 {
     m_zhuangbei.addfangyuma(c);
+}
+
+void player::removewuqi()
+{
+    m_zhuangbei.removewuqi();
+}
+
+void player::removefangju()
+{
+    m_zhuangbei.removefangju();
+}
+
+void player::removejinggongma()
+{
+    m_zhuangbei.removejinggongma();
+}
+
+void player::removefangyuma()
+{
+    m_zhuangbei.removefangyuma();
 }
 
 zhuangbeiqu *player::getzhuangbei()
@@ -226,6 +241,9 @@ bool player::playcard(
             && m_cards[handIndex]->NewGetNameString() != "Le_Busishu"
             && m_cards[handIndex]->NewGetNameString() != "Bing_Niangchunduan")
             g->moveCardToDiscard(m_cards[handIndex]);
+        if (g->getdangqianplayer()->getmynum() == 1) {
+            g->removecard(m_cards[handIndex]);
+        }
         m_cards.removeAt(handIndex);
         return true;
     }
@@ -247,6 +265,38 @@ void player::fuzhicards(
 int player::getPlayerIndex() const
 {
     return m_mynum;
+}
+
+bool player::hasShan() const
+{
+    for (card *c : m_cards) {
+        if (c->getName() == card::Shan) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool player::hasWuXiekeji() const
+{
+    for (card *c : m_cards) {
+        if (c->getName() == card::Wu_Xiekeji) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void player::removeCard(
+    card *cardToRemove)
+{
+    for (int i = 0; i < m_cards.size(); ++i) {
+        if (m_cards[i] == cardToRemove) {
+            m_cards.removeAt(i);
+            return;
+        }
+    }
+    qWarning() << "要移除的卡牌不在玩家手牌中";
 }
 
 void player::settilishangxian(

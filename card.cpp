@@ -56,7 +56,9 @@ bool card::xiaoguo(
     player* laiyuan, player* mubiao, GameManager* g)
 {
     switch (m_name) {
-    case Sha:
+    case Sha: {
+        if (!laiyuan || !mubiao || !g)
+            return false;
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
             return false;
         if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "Hei_Tao"
@@ -65,129 +67,194 @@ bool card::xiaoguo(
         if (mubiao->isbaohan("Teng_Jia"))
             return false;
         emit xuyaoxiangyingshan();
-        if (laiyuan->isbaohan("Jiu"))
-            return mubiao->shoudaoshanghai(2, "Pu_Tong");
-        else
-            return mubiao->shoudaoshanghai(1, "Pu_Tong");
+        bool ischushan = g->waitForShanResponse(mubiao, this);
+        if (ischushan) {
+            qDebug() << "闪响应成功，杀无效";
+            return false;
+        }
+        if (!ischushan) {
+            if (laiyuan->isbaohan("Jiu"))
+                return mubiao->shoudaoshanghai(2, "Pu_Tong");
+            else
+                return mubiao->shoudaoshanghai(1, "Pu_Tong");
+        }
         break;
+    }
 
-    case Shan:
-        return false;
+    case Shan: {
+        qDebug() << "闪被作为响应牌打出";
+        return true; // 表示响应成功
         break;
+    }
 
-    case Tao:
+    case Tao: {
         if (mubiao->gettili() == mubiao->gettilishangxian())
             return false;
         return mubiao->huixue(1);
         break;
+    }
 
-    case Jiu:
+    case Jiu: {
         if (mubiao->isbaohan("Jiu"))
             return false;
         else
             mubiao->addzhuangtai("Jiu", 1);
         return true;
         break;
+    }
 
-    case Lei_Sha:
+    case Lei_Sha: {
+        if (!laiyuan || !mubiao || !g)
+            return false;
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
             return false;
         if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
         emit xuyaoxiangyingshan();
+
+        bool sfchushan = g->waitForShanResponse(mubiao, this);
+
+        if (sfchushan) {
+            qDebug() << "闪响应成功，杀无效";
+            return false;
+        }
+
         if (laiyuan->isbaohan("Jiu"))
             return mubiao->shoudaoshanghai(2, "Lei");
         else
             return mubiao->shoudaoshanghai(1, "Lei");
         break;
+    }
 
-    case Huo_Sha:
+    case Huo_Sha: {
+        if (!laiyuan || !mubiao || !g)
+            return false;
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
             return false;
         if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
         emit xuyaoxiangyingshan();
+
+        bool isschushan = g->waitForShanResponse(mubiao, this);
+
+        if (isschushan) {
+            qDebug() << "闪响应成功，杀无效";
+            return false;
+        }
         if (laiyuan->isbaohan("Jiu"))
             return mubiao->shoudaoshanghai(2, "Fire");
         else
             return mubiao->shoudaoshanghai(1, "Fire");
 
         break;
+    }
 
-    case Wu_Zhongshengyou:
-        //emit xunwenxiangyingwuxiekeji();
+    case Wu_Zhongshengyou: {
+        emit xuyaowuxiekeji(this); // 通知需要无懈可击响应
+
+        // 等待无懈可击响应
+        bool wuxieResponded = g->waitForWuXiekejiResponse(this);
+
+        if (wuxieResponded) {
+            qDebug() << "无懈可击生效，锦囊牌无效";
+            return true;
+        }
         mubiao->mopai(2, g);
         return true;
         break;
+    }
 
-    case Wu_Gufengdeng:
-
+    case Wu_Gufengdeng: {
         break;
+    }
 
-    case Tao_yuanjieyi:
-
+    case Tao_yuanjieyi: {
         break;
+    }
 
     case Wan_jianqifa:
 
+    {
         break;
+    }
 
     case Huo_Gong:
 
+    {
         break;
+    }
 
     case Nan_Manruqin:
 
+    {
         break;
+    }
 
     case Jie_Daosharen:
 
+    {
         break;
+    }
 
-    case Bing_Niangchunduan:
+    case Bing_Niangchunduan: {
         mubiao->addjudg(this);
         return true;
 
         break;
+    }
 
-    case Le_Busishu:
+    case Le_Busishu: {
         mubiao->addjudg(this);
         return true;
         break;
+    }
 
     case Jue_Dou:
 
+    {
         break;
+    }
 
     case Wu_Xiekeji:
 
+    {
+        qDebug() << "无懈可击被作为响应牌打出";
+        return true;
         break;
+    }
 
     case Guo_Hechaiqiao:
 
+    {
         break;
+    }
 
     case Shun_Shouqianyang:
 
+    {
         break;
+    }
 
     case Tie_Suolianhuan:
 
+    {
         break;
+    }
 
-    case Shan_Dian:
+    case Shan_Dian: {
         mubiao->addjudg(this);
         return true;
 
         break;
+    }
 
-    case Zhu_Geliannv:
+    case Zhu_Geliannv: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -195,12 +262,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Ci_Xiongshuanggujian:
+    case Ci_Xiongshuanggujian: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -208,12 +276,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Han_Bingjian:
+    case Han_Bingjian: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -221,12 +290,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Fang_Tianhuaji:
+    case Fang_Tianhuaji: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -234,12 +304,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Zhu_Queyushan:
+    case Zhu_Queyushan: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -247,12 +318,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Zhang_Bashemao:
+    case Zhang_Bashemao: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -260,12 +332,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Gu_Dingdao:
+    case Gu_Dingdao: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -273,12 +346,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Guan_Shifu:
+    case Guan_Shifu: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -286,12 +360,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Qi_Linggong:
+    case Qi_Linggong: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -299,12 +374,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Qing_Longyanyuedao:
+    case Qing_Longyanyuedao: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -312,12 +388,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Qing_Gangjian:
+    case Qing_Gangjian: {
         if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getwuqi().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removewuqi();
+            mubiao->removewuqi();
             g->moveCardToDiscard(cd);
         }
         mubiao->addwuqi(this);
@@ -325,12 +402,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Ba_Guazhen:
+    case Ba_Guazhen: {
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removefangju();
+            mubiao->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -338,12 +416,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Teng_Jia:
+    case Teng_Jia: {
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removefangju();
+            mubiao->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -351,12 +430,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Ren_Wangdun:
+    case Ren_Wangdun: {
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removefangju();
+            mubiao->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -364,12 +444,13 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Bai_Yingshizi:
+    case Bai_Yingshizi: {
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removefangju();
+            mubiao->removefangju();
             g->moveCardToDiscard(cd);
         }
         mubiao->addfangju(this);
@@ -377,35 +458,39 @@ bool card::xiaoguo(
         return true;
 
         break;
+    }
 
-    case Fang_Yuma:
+    case Fang_Yuma: {
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removefangyuma();
+            mubiao->removefangyuma();
             g->moveCardToDiscard(cd);
         }
-        mubiao->addfangju(this);
+        mubiao->addfangyuma(this);
         mubiao->addzhuangtai("Fang_Yuma", 1);
         return true;
 
         break;
+    }
 
-    case Jing_Gongma:
+    case Jing_Gongma: {
         if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
             card* cd = mubiao->getzhuangbei()->getfangju().first();
             mubiao->yichuzhuangtai(cd->NewGetNameString());
-            mubiao->getzhuangbei()->removejinggongma();
+            mubiao->removejinggongma();
             g->moveCardToDiscard(cd);
         }
-        mubiao->addfangju(this);
+        mubiao->addjinggongma(this);
         mubiao->addzhuangtai("Jing_Gongma", 1);
         return true;
 
         break;
+    }
 
-    default:
+    default: {
         break;
+    }
     }
 }
 void card::setSuit(

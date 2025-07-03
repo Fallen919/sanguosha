@@ -20,6 +20,8 @@ class GameManager : public QObject
 public:
     explicit GameManager(QObject *parent = nullptr);
 
+    enum ResponseType { NoResponse, ShanResponse, WuXiekejiResponse };
+
     // 玩家操作
     Q_INVOKABLE card *drawCard();
     Q_INVOKABLE void playCard(int handIndex);
@@ -33,8 +35,8 @@ public:
     Q_INVOKABLE void moveCardToDiscard(card *c); // 将卡牌移入弃牌堆
 
     // 获取游戏状态（牌堆的牌数，或者获取牌堆，手牌的信息）
-    int deckCount() const;
-    int discardPileCount() const;
+    Q_INVOKABLE int deckCount() const;
+    Q_INVOKABLE int discardPileCount() const;
     Q_INVOKABLE QVariantList getHandCards() const;
     Q_INVOKABLE void initHandCards();
     Q_INVOKABLE QVariantMap getTopDiscardCard();
@@ -52,8 +54,21 @@ public:
     Q_INVOKABLE void cancelTargetSelection();             // 取消目标选择
     Q_INVOKABLE bool requiresTarget(int handIndex);       // 判断卡牌是否需要目标
     Q_INVOKABLE void startTargetSelection(int cardIndex); // 开始目标选择
+    Q_INVOKABLE bool isSelectingTarget() const { return m_isSelectingTarget; }
 
-    bool isSelectingTarget() const { return m_isSelectingTarget; }
+    void removecard(card *c);
+
+    // 响应管理
+    Q_INVOKABLE bool waitForShanResponse(player *targetPlayer, card *sourceCard);
+    Q_INVOKABLE bool waitForWuXiekejiResponse(card *sourceCard);
+    Q_INVOKABLE void respondToCard(card *responseCard, player *responder);
+
+    // 当前响应的卡牌和目标
+    Q_INVOKABLE card *currentResponseCard() const { return m_currentResponseCard; }
+    Q_INVOKABLE player *currentResponseTarget() const { return m_currentResponseTarget; }
+    Q_INVOKABLE ResponseType currentResponseType() const { return m_currentResponseType; }
+
+    Q_INVOKABLE void playResponseCard(int cardIndex);
 
 signals:
     // 游戏状态
@@ -70,6 +85,10 @@ signals:
     void cardPlayedWithTarget(int cardIndex, int targetPlayerIndex); // 带目标的出牌信号
     void isSelectingTargetChanged(bool isSelecting);                 // 目标选择状态改变
     void handCardsReset();
+    void requireShanResponse(player *targetPlayer);               // 需要闪响应
+    void requireWuXiekejiResponse(card *sourceCard);              // 需要无懈可击响应
+    void responseReceived(card *responseCard, player *responder); // 响应卡牌打出
+    void wuXiekejiResponseFinished();
 
 private:
     Carddex m_carddex;
@@ -79,4 +98,9 @@ private:
     player *m_dangqianplayer;
     int m_selectedCardIndex = -1;     // 当前选中的卡牌索引
     bool m_isSelectingTarget = false; // 是否正在选择目标
+    ResponseType m_currentResponseType = NoResponse;
+    card *m_currentResponseCard = nullptr;
+    player *m_currentResponseTarget = nullptr;
+    bool m_responseReceived = false;
+    bool m_responseResult = false;
 };
