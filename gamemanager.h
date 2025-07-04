@@ -7,6 +7,9 @@
 #include "carddex.h"
 #include <list>
 
+// 前置声明
+class player;
+
 class GameManager : public QObject
 {
     Q_OBJECT
@@ -46,6 +49,17 @@ public:
 
     Q_INVOKABLE void setdangqianplayer(player *p);
     Q_INVOKABLE player *getdangqianplayer();
+
+    // 新增：玩家状态管理
+    Q_INVOKABLE QVariantMap getPlayerInfo(int playerIndex);
+    Q_INVOKABLE QVariantList getAllPlayersInfo();
+    Q_INVOKABLE int getPlayerHealth(int playerIndex);
+    Q_INVOKABLE int getPlayerMaxHealth(int playerIndex);
+    Q_INVOKABLE QString getPlayerName(int playerIndex);
+
+    // 测试方法
+    Q_INVOKABLE void testDamagePlayer(int playerIndex, int damage);
+    Q_INVOKABLE void testHealPlayer(int playerIndex, int healAmount);
 
     Carddex *getcarddex();
     QList<card *> gethandcards();
@@ -91,8 +105,25 @@ signals:
     void wuXiekejiResponseFinished();
     void cancelResponseCalled(); // 添加新信号
 
+    // 新增：玩家状态变化信号
+    void playerHealthChanged(int playerIndex, int newHealth, int maxHealth);
+    void playerDamaged(int playerIndex, int damage);
+    void playerHealed(int playerIndex, int healAmount);
+    void playerDying(int playerIndex);
+    void playerStatusChanged(int playerIndex, const QString &status, bool added);
+    void allPlayersInfoChanged(const QVariantList &playersInfo);
+
 public slots:
     void cancelResponse(); // 添加取消响应函数
+
+    // 新增：处理玩家状态变化的槽函数
+
+private slots:
+    void onPlayerDamaged(int num);  // 改为与信号参数名一致
+    void onPlayerHealed(int num);   // 改为与信号参数名一致
+    void onPlayerDying();
+    void onPlayerStatusAdded(const QString &zhuangtai);  // 改为与信号参数名一致
+    void onPlayerStatusRemoved(const QString &zhuangtai); // 改为与信号参数名一致
 
 private:
     Carddex m_carddex;
@@ -106,4 +137,8 @@ private:
     player *m_currentResponseTarget = nullptr;
     bool m_responseReceived = false;
     bool m_responseResult = false;
+
+    // 新增：辅助方法
+    void connectPlayerSignals(player *p);
+    void emitAllPlayersInfo();
 };

@@ -47,5 +47,10 @@
         <file>jinnang/juedou.webp</file>
         <file>leisha.PNG</file>
         <file>huosha.PNG</file>
+        <file>SettingsScreen.qml</file>
+        <file>MainMenu.qml</file>
+        <file>PlayerArea.qml</file>
+        <file>GameScreen.qml</file>
+        <file>CardItem.qml</file>
     </qresource>
 </RCC>

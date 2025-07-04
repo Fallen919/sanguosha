@@ -1,14 +1,13 @@
 #include "player.h"
 #include "gamemanager.h"
-player::player(
-    QObject *parent)
+
+player::player(QObject *parent)
     : QObject{parent}
 {
     setgongjijuli();
 }
 
-void player::setwanjiashu(
-    int num)
+void player::setwanjiashu(int num)
 {
     m_wanjiashu = num;
 }
@@ -18,8 +17,7 @@ int player::getwanjiashu()
     return m_wanjiashu;
 }
 
-void player::setmynum(
-    int num)
+void player::setmynum(int num)
 {
     m_mynum = num;
 }
@@ -29,8 +27,7 @@ int player::getmynum()
     return m_mynum;
 }
 
-void player::setjuli(
-    GameManager *g)
+void player::setjuli(GameManager *g)
 {
     m_juli.push_back(0);
     int num = m_mynum;
@@ -49,15 +46,13 @@ void player::setjuli(
     }
 }
 
-int player::getjuli(
-    player *p1, player *p2)
+int player::getjuli(player *p1, player *p2)
 {
     int num = abs(p1->getmynum() - p2->getmynum());
     return m_juli[num];
 }
 
-void player::addjudg(
-    card *c)
+void player::addjudg(card *c)
 {
     m_judg.addjudgarea(c);
 }
@@ -67,26 +62,22 @@ judgearea *player::getjudg()
     return &m_judg;
 }
 
-void player::addwuqi(
-    card *c)
+void player::addwuqi(card *c)
 {
     m_zhuangbei.addwuqi(c);
 }
 
-void player::addfangju(
-    card *c)
+void player::addfangju(card *c)
 {
     m_zhuangbei.addfangju(c);
 }
 
-void player::addjinggongma(
-    card *c)
+void player::addjinggongma(card *c)
 {
     m_zhuangbei.addjinggongma(c);
 }
 
-void player::addfangyuma(
-    card *c)
+void player::addfangyuma(card *c)
 {
     m_zhuangbei.addfangyuma(c);
 }
@@ -121,8 +112,7 @@ QList<card *> player::getcards()
     return m_cards;
 }
 
-void player::setwujiang(
-    wujiang *w)
+void player::setwujiang(wujiang *w)
 {
     m_wujiang.settili(w->gettili());
     m_wujiang.settilishangxian(w->gettilishangxian());
@@ -138,12 +128,11 @@ wujiang *player::getwujiang()
     return &m_wujiang;
 }
 
-void player::mopai(
-    int num, GameManager *g)
+void player::mopai(int num, GameManager *g)
 {
     for (int i = 0; i < num; ++i) {
         m_cards.append(g->drawCard());
-        }
+    }
 }
 
 void player::setgongjijuli()
@@ -176,8 +165,7 @@ int player::getgongjijuli()
     return m_gongjijuli;
 }
 
-bool player::shoudaoshanghai(
-    int num, const QString shanghaileixing)
+bool player::shoudaoshanghai(int num, const QString shanghaileixing)
 {
     if (m_zhuangtai.contains("Mian_Shang"))
         return false;
@@ -193,61 +181,41 @@ bool player::shoudaoshanghai(
 
     if (m_tili <= 0)
         emit jinrubinsi();
+
     return true;
 }
 
-bool player::huixue(
-    int num)
+bool player::huixue(int num)
 {
     if (num + m_tili >= m_tilishangxian) {
         num = m_tilishangxian - m_tili;
         m_tili = m_tilishangxian;
     } else
         m_tili += num;
+
     emit huifuxueliang(num);
+    return true; // 修复：添加返回值
 }
 
-void player::addzhuangtai(
-    const QString zhuangtai, int num)
+void player::addzhuangtai(const QString zhuangtai, int num)
 {
     m_zhuangtai[zhuangtai] = num;
     emit addzt(zhuangtai);
 }
 
-bool player::isbaohan(
-    const QString zhuangtai)
+bool player::isbaohan(const QString zhuangtai)
 {
     return m_zhuangtai.contains(zhuangtai);
 }
 
-void player::yichuzhuangtai(
-    const QString zhuangtai)
+void player::yichuzhuangtai(const QString zhuangtai)
 {
     m_zhuangtai.remove(zhuangtai);
     emit yichuzt(zhuangtai);
 }
 
-bool player::playcard(
-    int handIndex, GameManager *g)
+bool player::playcard(int handIndex, GameManager *g)
 {
-    // if (handIndex < 0 || handIndex >= m_cards.size()) {
-    //     qWarning() << "Invalid hand index:" << handIndex;
-    //     qWarning() << "shoupai:" << m_cards.size();
-    //     return false;
-    // }
-    // card *cd = m_cards[handIndex];
-    // if (cd->xiaoguo(this, this, g)) {
-    //     if (cd->getTypeString() != "Zhuang_Bei" && cd->NewGetNameString() != "Shan_Dian"
-    //         && cd->NewGetNameString() != "Le_Busishu"
-    //         && cd->NewGetNameString() != "Bing_Niangchunduan")
-    //         g->moveCardToDiscard(cd);
-    //     if (g->getdangqianplayer()->getmynum() == 1) {
-    //         g->removecard(m_cards[handIndex]);
-    //     }
-    //         m_cards.removeAt(handIndex);
-    //     return true;
-    // }
-    // return false;
     if (handIndex < 0 || handIndex >= m_cards.size())
         return false;
 
@@ -265,8 +233,7 @@ void player::clearcards()
     m_cards.clear();
 }
 
-void player::fuzhicards(
-    QList<card *> cds)
+void player::fuzhicards(QList<card *> cds)
 {
     clearcards();
     m_cards.append(cds);
@@ -297,8 +264,7 @@ bool player::hasWuXiekeji() const
     return false;
 }
 
-void player::removeCard(
-    card *cardToRemove)
+void player::removeCard(card *cardToRemove)
 {
     for (int i = 0; i < m_cards.size(); ++i) {
         if (m_cards[i] == cardToRemove) {
@@ -309,8 +275,7 @@ void player::removeCard(
     qWarning() << "要移除的卡牌不在玩家手牌中";
 }
 
-void player::settilishangxian(
-    int num)
+void player::settilishangxian(int num)
 {
     m_tilishangxian = num;
 }
@@ -320,8 +285,7 @@ int player::gettilishangxian()
     return m_tilishangxian;
 }
 
-void player::setshoupaishangxian(
-    int num)
+void player::setshoupaishangxian(int num)
 {
     m_shoupaishangxian = num;
 }
@@ -331,8 +295,7 @@ int player::getshoupaishangxian()
     return m_shoupaishangxian;
 }
 
-void player::settili(
-    int num)
+void player::settili(int num)
 {
     m_tili = num;
 }
@@ -348,4 +311,11 @@ bool player::isalive()
         return false;
     else
         return true;
+}
+void player::addCard(card *cd)
+{
+    if (cd) {
+        m_cards.append(cd);
+        qDebug() << "玩家" << m_mynum << "获得了卡牌:" << cd->NewGetNameString();
+    }
 }

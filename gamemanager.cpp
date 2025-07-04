@@ -3,38 +3,237 @@
 #include "player.h"
 #include <QEventLoop>
 #include <QTimer>
-GameManager::GameManager(
-    QObject *parent)
+
+GameManager::GameManager(QObject *parent)
     : QObject(parent)
 {
     m_carddex.xipai();
     player *p = new player(this);
     player *p1 = new player(this);
     player *p2 = new player(this);
+
     GameManager::setplayers(p);
     GameManager::setplayers(p1);
     GameManager::setplayers(p2);
+
     p->settili(4);
     p->settilishangxian(4);
     p1->settili(4);
     p1->settilishangxian(4);
     p2->settili(4);
     p2->settilishangxian(4);
+
     p->setmynum(1);
     p1->setmynum(2);
     p2->setmynum(3);
+
     p1->setjuli(this);
     p2->setjuli(this);
     p->setjuli(this);
+
     p->setwanjiashu(3);
     p1->setwanjiashu(3);
     p2->setwanjiashu(3);
+
+    // 连接玩家信号
+    connectPlayerSignals(p);
+    connectPlayerSignals(p1);
+    connectPlayerSignals(p2);
+
     std::list<player *>::iterator it = m_player.begin();
     for (int i = 0; i < 3; ++i, ++it) {
         m_dangqianplayer = *it;
         (*it)->mopai(4, this);
     }
     m_dangqianplayer = p;
+
+    // 发送初始玩家信息
+    emitAllPlayersInfo();
+}
+
+// 连接玩家信号到游戏管理器
+void GameManager::connectPlayerSignals(player *p)
+{
+    connect(p, SIGNAL(shoudaoshanghai(int)), this, SLOT(onPlayerDamaged(int)));
+    connect(p, SIGNAL(huifuxueliang(int)), this, SLOT(onPlayerHealed(int)));
+    connect(p, SIGNAL(jinrubinsi()), this, SLOT(onPlayerDying()));
+    connect(p, SIGNAL(addzt(QString)), this, SLOT(onPlayerStatusAdded(QString)));
+    connect(p, SIGNAL(yichuzt(QString)), this, SLOT(onPlayerStatusRemoved(QString)));
+}
+// 获取单个玩家信息
+QVariantMap GameManager::getPlayerInfo(int playerIndex)
+{
+    QVariantMap playerInfo;
+
+    auto it = m_player.begin();
+    std::advance(it, playerIndex);
+
+    if (it != m_player.end()) {
+        player *p = *it;
+        playerInfo["index"] = p->getmynum() - 1; // QML中使用0-based索引
+        playerInfo["name"] = QString("Player %1").arg(p->getmynum());
+        playerInfo["health"] = p->gettili();
+        playerInfo["maxHealth"] = p->gettilishangxian();
+        playerInfo["isAlive"] = p->isalive();
+        playerInfo["handCount"] = p->getcards().size();
+    }
+
+    return playerInfo;
+}
+
+// 获取所有玩家信息
+QVariantList GameManager::getAllPlayersInfo()
+{
+    QVariantList playersInfo;
+
+    for (auto it = m_player.begin(); it != m_player.end(); ++it) {
+        player *p = *it;
+        QVariantMap playerInfo;
+        playerInfo["index"] = p->getmynum() - 1; // QML中使用0-based索引
+        playerInfo["name"] = QString("Player %1").arg(p->getmynum());
+        playerInfo["health"] = p->gettili();
+        playerInfo["maxHealth"] = p->gettilishangxian();
+        playerInfo["isAlive"] = p->isalive();
+        playerInfo["handCount"] = p->getcards().size();
+        playersInfo.append(playerInfo);
+    }
+
+    return playersInfo;
+}
+
+// 获取玩家血量
+int GameManager::getPlayerHealth(int playerIndex)
+{
+    auto it = m_player.begin();
+    std::advance(it, playerIndex);
+
+    if (it != m_player.end()) {
+        return (*it)->gettili();
+    }
+    return 0;
+}
+
+// 获取玩家最大血量
+int GameManager::getPlayerMaxHealth(int playerIndex)
+{
+    auto it = m_player.begin();
+    std::advance(it, playerIndex);
+
+    if (it != m_player.end()) {
+        return (*it)->gettilishangxian();
+    }
+    return 0;
+}
+
+// 获取玩家名称
+QString GameManager::getPlayerName(int playerIndex)
+{
+    auto it = m_player.begin();
+    std::advance(it, playerIndex);
+
+    if (it != m_player.end()) {
+        return QString("Player %1").arg((*it)->getmynum());
+    }
+    return "Unknown";
+}
+
+// 测试方法：对玩家造成伤害
+void GameManager::testDamagePlayer(int playerIndex, int damage)
+{
+    auto it = m_player.begin();
+    std::advance(it, playerIndex);
+
+    if (it != m_player.end()) {
+        player *p = *it;
+        p->shoudaoshanghai(damage, "Pu_Tong");
+        qDebug() << "测试：对玩家" << playerIndex << "造成" << damage << "点伤害";
+    }
+}
+
+// 测试方法：为玩家回复血量
+void GameManager::testHealPlayer(int playerIndex, int healAmount)
+{
+    auto it = m_player.begin();
+    std::advance(it, playerIndex);
+
+    if (it != m_player.end()) {
+        player *p = *it;
+        p->huixue(healAmount);
+        qDebug() << "测试：为玩家" << playerIndex << "回复" << healAmount << "点血量";
+    }
+}
+
+// 处理玩家受到伤害
+void GameManager::onPlayerDamaged(int damage)
+{
+    player *p = qobject_cast<player*>(sender());
+    if (p) {
+        int playerIndex = p->getmynum() - 1; // 转换为0-based索引
+        emit playerDamaged(playerIndex, damage);
+        emit playerHealthChanged(playerIndex, p->gettili(), p->gettilishangxian());
+        emitAllPlayersInfo();
+
+        qDebug() << "玩家" << playerIndex << "受到" << damage << "点伤害，剩余血量:" << p->gettili();
+    }
+}
+
+// 处理玩家回血
+void GameManager::onPlayerHealed(int healAmount)
+{
+    player *p = qobject_cast<player*>(sender());
+    if (p) {
+        int playerIndex = p->getmynum() - 1;
+        emit playerHealed(playerIndex, healAmount);
+        emit playerHealthChanged(playerIndex, p->gettili(), p->gettilishangxian());
+        emitAllPlayersInfo();
+
+        qDebug() << "玩家" << playerIndex << "回复" << healAmount << "点血量，当前血量:" << p->gettili();
+    }
+}
+
+// 处理玩家濒死
+void GameManager::onPlayerDying()
+{
+    player *p = qobject_cast<player*>(sender());
+    if (p) {
+        int playerIndex = p->getmynum() - 1;
+        emit playerDying(playerIndex);
+        emitAllPlayersInfo();
+
+        qDebug() << "玩家" << playerIndex << "进入濒死状态";
+    }
+}
+
+// 处理玩家状态添加
+void GameManager::onPlayerStatusAdded(const QString &status)
+{
+    player *p = qobject_cast<player*>(sender());
+    if (p) {
+        int playerIndex = p->getmynum() - 1;
+        emit playerStatusChanged(playerIndex, status, true);
+        emitAllPlayersInfo();
+
+        qDebug() << "玩家" << playerIndex << "添加状态:" << status;
+    }
+}
+
+// 处理玩家状态移除
+void GameManager::onPlayerStatusRemoved(const QString &status)
+{
+    player *p = qobject_cast<player*>(sender());
+    if (p) {
+        int playerIndex = p->getmynum() - 1;
+        emit playerStatusChanged(playerIndex, status, false);
+        emitAllPlayersInfo();
+
+        qDebug() << "玩家" << playerIndex << "移除状态:" << status;
+    }
+}
+
+// 发送所有玩家信息更新信号
+void GameManager::emitAllPlayersInfo()
+{
+    emit allPlayersInfoChanged(getAllPlayersInfo());
 }
 
 card *GameManager::drawCard()
@@ -55,46 +254,11 @@ card *GameManager::drawCard()
 
     emit cardAdded(cardData);
     emit deckCountChanged(deckCount());
-    //emit handCardsReset();
-    //m_prevHand = m_playerHand; // 更新状态
     return drawnCard;
 }
 
-void GameManager::playCard(
-    int handIndex)
+void GameManager::playCard(int handIndex)
 {
-    // if (handIndex < 0 || handIndex >= m_playerHand.size()) {
-    //     qWarning() << "Invalid hand index:" << handIndex;
-    //     qWarning() << "shoupai:" << m_playerHand.size();
-    //     return;
-    // }
-    // card *playedCard = m_playerHand.at(handIndex);
-    // // 检查卡牌是否需要选择目标
-    // if (playedCard->requiresTarget()) {
-    //     m_selectedCardIndex = handIndex;
-    //     m_isSelectingTarget = true;
-    //     emit targetSelectionStarted(handIndex);
-    //     emit isSelectingTargetChanged(true);
-    //     return; // 不立即出牌，等待目标选择
-    // }
-    // if (m_dangqianplayer->playcard(handIndex, this)) {
-    //     if (m_dangqianplayer->getmynum() == 1) {
-    //         qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
-    //         qWarning() << "我的手牌数:" << m_playerHand.size();
-    //         m_playerHand.clear();
-    //         m_playerHand.append(m_dangqianplayer->getcards());
-    //         qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
-    //     }
-
-    //     QVariantMap cardData;
-    //     cardData["name"] = playedCard->NewGetName();
-    //     cardData["suit"] = playedCard->getSuit();
-    //     cardData["point"] = playedCard->getPoint();
-    //     cardData["type"] = playedCard->getType();
-    //     emit cardRemoved(handIndex);
-    //     emit cardPlayed(cardData); // 发出卡牌使用信号，但卡牌尚未进入弃牌堆
-    //     emit cardDiscarded(cardData);
-    // }
     if (handIndex < 0 || handIndex >= m_playerHand.size()) {
         qWarning() << "Invalid hand index:" << handIndex;
         return;
@@ -135,8 +299,7 @@ void GameManager::playCard(
     }
 }
 
-void GameManager::discardCard(
-    int handIndex)
+void GameManager::discardCard(int handIndex)
 {
     if (handIndex < 0 || handIndex >= m_playerHand.size()) {
         qWarning() << "Invalid hand index:" << handIndex;
@@ -155,8 +318,8 @@ void GameManager::discardCard(
     emit cardRemoved(handIndex);
     emit cardDiscarded(cardData);
 }
-void GameManager::moveCardToDiscard(
-    card *c)
+
+void GameManager::moveCardToDiscard(card *c)
 {
     QVariantMap cardData;
     cardData["name"] = c->NewGetName();
@@ -167,6 +330,7 @@ void GameManager::moveCardToDiscard(
     emit cardMovedToDiscard(cardData);
     emit discardPileChanged(discardPileCount());
 }
+
 void GameManager::shuffleDeck()
 {
     m_carddex.xipai();
@@ -179,24 +343,22 @@ card *GameManager::panding()
     return pandingpai;
 }
 
-//牌堆数量
 int GameManager::deckCount() const
 {
     return m_carddex.count();
 }
-//弃牌堆数量
+
 int GameManager::discardPileCount() const
 {
     return m_carddex.discardCount();
 }
-//弃牌堆顶
+
 QVariantMap GameManager::getTopDiscardCard()
 {
     return m_carddex.getTopDiscardCard();
 }
 
-void GameManager::setplayers(
-    player *p)
+void GameManager::setplayers(player *p)
 {
     m_player.push_back(p);
 }
@@ -206,8 +368,7 @@ std::list<player *> GameManager::getplayers()
     return m_player;
 }
 
-void GameManager::setdangqianplayer(
-    player *p)
+void GameManager::setdangqianplayer(player *p)
 {
     m_dangqianplayer = p;
 }
@@ -217,67 +378,8 @@ player *GameManager::getdangqianplayer()
     return m_dangqianplayer;
 }
 
-void GameManager::selectTargetPlayer(
-    int playerIndex)
+void GameManager::selectTargetPlayer(int playerIndex)
 {
-    // if (!m_isSelectingTarget || m_selectedCardIndex < 0) {
-    //     qWarning() << "不在目标选择模式";
-    //     return;
-    // }
-
-    // // 修复1：添加索引范围检查
-    // if (playerIndex < 0 || playerIndex >= m_player.size()) {
-    //     qWarning() << "无效玩家索引:" << playerIndex;
-    //     return;
-    // }
-
-    // // 修复2：安全获取玩家指针
-    // auto it = m_player.begin();
-    // std::advance(it, playerIndex);
-
-    // if (it == m_player.end()) { // 新增边界检查
-    //     qWarning() << "玩家迭代器越界";
-    //     return;
-    // }
-
-    // player *t = *it;
-    // if (!t) { // 新增空指针检查
-    //     qWarning() << "目标玩家为空";
-    //     return;
-    // }
-
-    // // 修复3：统一使用当前玩家指针
-    // player *p = getdangqianplayer();
-    // if (!p) {
-    //     qWarning() << "当前玩家为空";
-    //     return;
-    // }
-
-    // card *playedCard = m_playerHand.at(m_selectedCardIndex);
-    // if (!playedCard) {
-    //     qWarning() << "选择的卡牌为空";
-    //     return;
-    // }
-
-    // // 修复4：移除冗余代码（响应处理已独立）
-    // bool success = playedCard->xiaoguo(p, t, this);
-    // if (success) {
-    //     m_playerHand.removeAt(m_selectedCardIndex);
-    //     emit cardRemoved(m_selectedCardIndex);
-
-    //     if (playedCard->getTypeString() != "Zhuang_Bei"
-    //         && playedCard->NewGetNameString() != "Shan_Dian"
-    //         && playedCard->NewGetNameString() != "Le_Busishu"
-    //         && playedCard->NewGetNameString() != "Bing_Niangchunduan") {
-    //         moveCardToDiscard(playedCard);
-    //     }
-    // }
-
-    // // 重置状态
-    // m_isSelectingTarget = false;
-    // m_selectedCardIndex = -1;
-    // emit isSelectingTargetChanged(false);
-    // emit cardPlayedWithTarget(m_selectedCardIndex, playerIndex);
     if (!m_isSelectingTarget || m_selectedCardIndex < 0)
         return;
     if (playerIndex < 0 || playerIndex >= m_player.size())
@@ -365,8 +467,7 @@ void GameManager::initHandCards()
     }
 }
 
-bool GameManager::requiresTarget(
-    int handIndex)
+bool GameManager::requiresTarget(int handIndex)
 {
     if (handIndex < 0 || handIndex >= m_playerHand.size()) {
         return false;
@@ -374,8 +475,7 @@ bool GameManager::requiresTarget(
     return m_playerHand.at(handIndex)->requiresTarget();
 }
 
-void GameManager::startTargetSelection(
-    int cardIndex)
+void GameManager::startTargetSelection(int cardIndex)
 {
     m_selectedCardIndex = cardIndex;
     m_isSelectingTarget = true;
@@ -383,8 +483,7 @@ void GameManager::startTargetSelection(
     emit isSelectingTargetChanged(true);
 }
 
-void GameManager::removecard(
-    card *c)
+void GameManager::removecard(card *c)
 {
     for (int i = 0; i < m_playerHand.size(); ++i) {
         if (m_playerHand[i] == c) {
@@ -394,7 +493,7 @@ void GameManager::removecard(
             cardData["point"] = m_playerHand[i]->getPoint();
             cardData["type"] = m_playerHand[i]->getType();
             emit cardRemoved(i);
-            emit cardPlayed(cardData); // 发出卡牌使用信号，但卡牌尚未进入弃牌堆
+            emit cardPlayed(cardData);
             emit cardDiscarded(cardData);
             m_playerHand.removeAt(i);
             return;
@@ -402,8 +501,7 @@ void GameManager::removecard(
     }
 }
 
-bool GameManager::waitForShanResponse(
-    player *targetPlayer, card *sourceCard)
+bool GameManager::waitForShanResponse(player *targetPlayer, card *sourceCard)
 {
     qDebug() << "等待玩家" << targetPlayer->getPlayerIndex() << "响应闪";
 
@@ -422,7 +520,7 @@ bool GameManager::waitForShanResponse(
     timer.setSingleShot(true);
     connect(this, &GameManager::responseReceived, &loop, &QEventLoop::quit);
     connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    connect(this, &GameManager::cancelResponseCalled, &loop, &QEventLoop::quit); // 添加新连接
+    connect(this, &GameManager::cancelResponseCalled, &loop, &QEventLoop::quit);
     timer.start(15000); // 15秒超时
     loop.exec();
 
@@ -434,8 +532,7 @@ bool GameManager::waitForShanResponse(
     return m_responseResult;
 }
 
-bool GameManager::waitForWuXiekejiResponse(
-    card *sourceCard)
+bool GameManager::waitForWuXiekejiResponse(card *sourceCard)
 {
     qDebug() << "等待无懈可击响应";
 
@@ -468,12 +565,11 @@ bool GameManager::waitForWuXiekejiResponse(
     return m_responseResult;
 }
 
-void GameManager::respondToCard(
-    card *responseCard, player *responder)
+void GameManager::respondToCard(card *responseCard, player *responder)
 {
     if (!m_responseReceived) {
         qDebug() << "玩家" << responder->getPlayerIndex()
-                 << "打出响应牌:" << responseCard->NewGetNameString();
+            << "打出响应牌:" << responseCard->NewGetNameString();
 
         // 处理不同类型的响应
         switch (m_currentResponseType) {
@@ -535,8 +631,7 @@ void GameManager::respondToCard(
     }
 }
 
-void GameManager::playResponseCard(
-    int cardIndex)
+void GameManager::playResponseCard(int cardIndex)
 {
     if (cardIndex < 0 || cardIndex >= m_playerHand.size()) {
         qWarning() << "Invalid response card index:" << cardIndex;
@@ -556,6 +651,6 @@ void GameManager::cancelResponse()
         m_responseResult = false;
         m_responseReceived = true;
         emit responseReceived(nullptr, nullptr);
-        emit cancelResponseCalled(); // 触发取消信号
+        emit cancelResponseCalled();
     }
 }

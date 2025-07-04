@@ -97,6 +97,8 @@ public:
     Q_INVOKABLE bool hasShan() const;
     Q_INVOKABLE bool hasWuXiekeji() const;
     Q_INVOKABLE void removeCard(card *cardToRemove);
+    //顺手牵羊专用
+      Q_INVOKABLE void addCard(card *cd);  // 添加卡牌到手牌
 
 private:
     int m_wanjiashu;         //玩家数
@@ -112,6 +114,7 @@ private:
     int m_shoupaishu;        //手牌数
     int m_shoupaishangxian;  //手牌上线
     QHash<QString, int> m_zhuangtai; //玩家的状态
+
 
 signals:
     void playerselced(player *p);

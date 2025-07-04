@@ -177,12 +177,56 @@ bool card::xiaoguo(
     }
 
     case Tao_yuanjieyi: {
+        // 桃园结义：所有角色各回复1点体力
+        emit xuyaowuxiekeji(this);
+        bool wuxieResponded = g->waitForWuXiekejiResponse(this);
+
+        if (wuxieResponded) {
+            qDebug() << "无懈可击生效，桃园结义无效";
+            return true;
+        }
+
+        qDebug() << "桃园结义生效";
+        std::list<player*> players = g->getplayers();
+        for (auto it = players.begin(); it != players.end(); ++it) {
+            if ((*it)->isalive()) {
+                (*it)->huixue(1);
+            }
+        }
+        return true;
         break;
     }
 
-    case Wan_jianqifa:
+    case Wan_jianqifa: {
+        // 万箭齐发：对所有其他角色造成1点伤害，除非他们打出闪
+        if (!laiyuan || !g)
+            return false;
 
-    {
+        emit xuyaowuxiekeji(this);
+        bool wuxieResponded = g->waitForWuXiekejiResponse(this);
+
+        if (wuxieResponded) {
+            qDebug() << "无懈可击生效，万箭齐发无效";
+            return true;
+        }
+
+        qDebug() << "万箭齐发生效";
+        std::list<player*> players = g->getplayers();
+        for (auto it = players.begin(); it != players.end(); ++it) {
+            if ((*it) != laiyuan && (*it)->isalive()) {
+                // 询问是否出闪
+                emit xuyaoxiangyingshan();
+                bool ischushan = g->waitForShanResponse(*it, this);
+
+                if (!ischushan) {
+                    (*it)->shoudaoshanghai(1, "Pu_Tong");
+                    qDebug() << "万箭齐发对玩家" << (*it)->getmynum() << "造成伤害";
+                } else {
+                    qDebug() << "玩家" << (*it)->getmynum() << "用闪抵挡了万箭齐发";
+                }
+            }
+        }
+        return true;
         break;
     }
 
@@ -192,9 +236,43 @@ bool card::xiaoguo(
         break;
     }
 
-    case Nan_Manruqin:
+    case Nan_Manruqin: {
+        // 南蛮入侵：对所有其他角色造成1点伤害，除非他们打出杀
+        if (!laiyuan || !g)
+            return false;
 
-    {
+        emit xuyaowuxiekeji(this);
+        bool wuxieResponded = g->waitForWuXiekejiResponse(this);
+
+        if (wuxieResponded) {
+            qDebug() << "无懈可击生效，南蛮入侵无效";
+            return true;
+        }
+
+        qDebug() << "南蛮入侵生效";
+        std::list<player*> players = g->getplayers();
+        for (auto it = players.begin(); it != players.end(); ++it) {
+            if ((*it) != laiyuan && (*it)->isalive()) {
+                // 检查是否有杀可以打出（简化处理）
+                QList<card*> playerCards = (*it)->getcards();
+                bool hasSha = false;
+                for (card* c : playerCards) {
+                    if (c->getName() == card::Sha || c->getName() == card::Huo_Sha || c->getName() == card::Lei_Sha) {
+                        hasSha = true;
+                        (*it)->removeCard(c);
+                        g->moveCardToDiscard(c);
+                        qDebug() << "玩家" << (*it)->getmynum() << "打出杀抵挡南蛮入侵";
+                        break;
+                    }
+                }
+
+                if (!hasSha) {
+                    (*it)->shoudaoshanghai(1, "Pu_Tong");
+                    qDebug() << "南蛮入侵对玩家" << (*it)->getmynum() << "造成伤害";
+                }
+            }
+        }
+        return true;
         break;
     }
 
@@ -217,12 +295,54 @@ bool card::xiaoguo(
         break;
     }
 
-    case Jue_Dou:
+    case Jue_Dou: {
+        // 决斗：你和目标角色轮流打出杀，直到其中一方不打出杀并受到1点伤害
+        if (!laiyuan || !mubiao || !g)
+            return false;
 
-    {
+        emit xuyaowuxiekeji(this);
+        bool wuxieResponded = g->waitForWuXiekejiResponse(this);
+
+        if (wuxieResponded) {
+            qDebug() << "无懈可击生效，决斗无效";
+            return true;
+        }
+
+        qDebug() << "决斗开始";
+        player* currentPlayer = mubiao; // 目标先出杀
+        player* opponent = laiyuan;
+
+        while (true) {
+            QList<card*> playerCards = currentPlayer->getcards();
+            bool hasSha = false;
+
+            // 检查是否有杀
+            for (card* c : playerCards) {
+                if (c->getName() == card::Sha || c->getName() == card::Huo_Sha || c->getName() == card::Lei_Sha) {
+                    hasSha = true;
+                    currentPlayer->removeCard(c);
+                    g->moveCardToDiscard(c);
+                    qDebug() << "玩家" << currentPlayer->getmynum() << "在决斗中打出杀";
+                    break;
+                }
+            }
+
+            if (!hasSha) {
+                // 当前玩家没有杀，受到伤害
+                currentPlayer->shoudaoshanghai(1, "Pu_Tong");
+                qDebug() << "决斗结束，玩家" << currentPlayer->getmynum() << "受到伤害";
+                break;
+            }
+
+            // 交换角色
+            player* temp = currentPlayer;
+            currentPlayer = opponent;
+            opponent = temp;
+        }
+
+        return true;
         break;
     }
-
     case Wu_Xiekeji:
 
     {
@@ -237,9 +357,47 @@ bool card::xiaoguo(
         break;
     }
 
-    case Shun_Shouqianyang:
+    case Shun_Shouqianyang: {
+        // 顺手牵羊：获得目标角色区域内的一张牌
+        if (!laiyuan || !mubiao || !g)
+            return false;
 
-    {
+        // 检查距离：必须距离为1
+        if (laiyuan->getjuli(laiyuan, mubiao) > 1) {
+            qDebug() << "距离不够，无法使用顺手牵羊";
+            return false;
+        }
+
+        emit xuyaowuxiekeji(this);
+        bool wuxieResponded = g->waitForWuXiekejiResponse(this);
+
+        if (wuxieResponded) {
+            qDebug() << "无懈可击生效，顺手牵羊无效";
+            return true;
+        }
+
+        // 简化处理：优先获得手牌，然后装备
+        QList<card*> targetCards = mubiao->getcards();
+        if (!targetCards.isEmpty()) {
+            card* stolenCard = targetCards.first();
+            mubiao->removeCard(stolenCard);
+            laiyuan->addCard(stolenCard);
+            qDebug() << "顺手牵羊：获得了手牌" << stolenCard->NewGetNameString();
+        } else if (!mubiao->getzhuangbei()->getwuqi().isEmpty()) {
+            card* weapon = mubiao->getzhuangbei()->getwuqi().first();
+            mubiao->removewuqi();
+            laiyuan->addCard(weapon);
+            qDebug() << "顺手牵羊：获得了武器" << weapon->NewGetNameString();
+        } else if (!mubiao->getzhuangbei()->getfangju().isEmpty()) {
+            card* armor = mubiao->getzhuangbei()->getfangju().first();
+            mubiao->removefangju();
+            laiyuan->addCard(armor);
+            qDebug() << "顺手牵羊：获得了防具" << armor->NewGetNameString();
+        } else {
+            qDebug() << "顺手牵羊：目标没有可获得的牌";
+        }
+
+        return true;
         break;
     }
 
