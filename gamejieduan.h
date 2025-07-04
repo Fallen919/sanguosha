@@ -27,22 +27,25 @@ public:
     Q_INVOKABLE Jieduan getjieduan();
 
     //准备阶段
-    Q_INVOKABLE void zhunbeijieduan(player *p);
+    Q_INVOKABLE void zhunbeijieduan(player *p, GameManager *g);
 
     //判定阶段
-    Q_INVOKABLE void pandingjieduan(player *p);
+    Q_INVOKABLE void pandingjieduan(player *p, GameManager *g);
 
     //摸牌阶段
     Q_INVOKABLE void mopaijieduan(player *p, GameManager *g);
 
     //出牌阶段
-    Q_INVOKABLE void chupaijieduan(player *p);
+    Q_INVOKABLE void chupaijieduan(player *p, GameManager *g);
 
     //弃牌阶段
-    Q_INVOKABLE void qipaijieduan(player *p);
+    Q_INVOKABLE void qipaijieduan(player *p, GameManager *g);
 
     //结束阶段
-    Q_INVOKABLE void jieshujieduan(player *p);
+    Q_INVOKABLE void jieshujieduan(player *p, GameManager *g);
+
+    //玩家回合结束
+    Q_INVOKABLE void huihejieshu(player *p, GameManager *g);
 
     //一回合
     Q_INVOKABLE void yihuihe(player *p, GameManager *g);

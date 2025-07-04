@@ -63,37 +63,75 @@ card *GameManager::drawCard()
 void GameManager::playCard(
     int handIndex)
 {
+    // if (handIndex < 0 || handIndex >= m_playerHand.size()) {
+    //     qWarning() << "Invalid hand index:" << handIndex;
+    //     qWarning() << "shoupai:" << m_playerHand.size();
+    //     return;
+    // }
+    // card *playedCard = m_playerHand.at(handIndex);
+    // // 检查卡牌是否需要选择目标
+    // if (playedCard->requiresTarget()) {
+    //     m_selectedCardIndex = handIndex;
+    //     m_isSelectingTarget = true;
+    //     emit targetSelectionStarted(handIndex);
+    //     emit isSelectingTargetChanged(true);
+    //     return; // 不立即出牌，等待目标选择
+    // }
+    // if (m_dangqianplayer->playcard(handIndex, this)) {
+    //     if (m_dangqianplayer->getmynum() == 1) {
+    //         qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
+    //         qWarning() << "我的手牌数:" << m_playerHand.size();
+    //         m_playerHand.clear();
+    //         m_playerHand.append(m_dangqianplayer->getcards());
+    //         qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
+    //     }
+
+    //     QVariantMap cardData;
+    //     cardData["name"] = playedCard->NewGetName();
+    //     cardData["suit"] = playedCard->getSuit();
+    //     cardData["point"] = playedCard->getPoint();
+    //     cardData["type"] = playedCard->getType();
+    //     emit cardRemoved(handIndex);
+    //     emit cardPlayed(cardData); // 发出卡牌使用信号，但卡牌尚未进入弃牌堆
+    //     emit cardDiscarded(cardData);
+    // }
     if (handIndex < 0 || handIndex >= m_playerHand.size()) {
         qWarning() << "Invalid hand index:" << handIndex;
-        qWarning() << "shoupai:" << m_playerHand.size();
         return;
     }
+
     card *playedCard = m_playerHand.at(handIndex);
-    // 检查卡牌是否需要选择目标
+
     if (playedCard->requiresTarget()) {
         m_selectedCardIndex = handIndex;
         m_isSelectingTarget = true;
         emit targetSelectionStarted(handIndex);
         emit isSelectingTargetChanged(true);
-        return; // 不立即出牌，等待目标选择
+        return;
     }
-    if (m_dangqianplayer->playcard(handIndex, this)) {
-        if (m_dangqianplayer->getmynum() == 1) {
-            qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
-            qWarning() << "我的手牌数:" << m_playerHand.size();
-            m_playerHand.clear();
-            m_playerHand.append(m_dangqianplayer->getcards());
-            qWarning() << "当前玩家的手牌数:" << m_dangqianplayer->getcards().size();
-        }
 
+    if (m_dangqianplayer->playcard(handIndex, this)) {
+        // 统一处理卡牌移除逻辑
         QVariantMap cardData;
         cardData["name"] = playedCard->NewGetName();
         cardData["suit"] = playedCard->getSuit();
         cardData["point"] = playedCard->getPoint();
         cardData["type"] = playedCard->getType();
+
+        // 直接从手牌列表移除
+        m_playerHand.removeAt(handIndex);
         emit cardRemoved(handIndex);
-        emit cardPlayed(cardData); // 发出卡牌使用信号，但卡牌尚未进入弃牌堆
-        emit cardDiscarded(cardData);
+        emit cardPlayed(cardData);
+
+        // 特殊卡牌不进弃牌堆
+        const bool isSpecialCard = playedCard->getTypeString() == "Zhuang_Bei"
+                                   || playedCard->NewGetNameString() == "Shan_Dian"
+                                   || playedCard->NewGetNameString() == "Le_Busishu"
+                                   || playedCard->NewGetNameString() == "Bing_Niangchunduan";
+
+        if (!isSpecialCard) {
+            moveCardToDiscard(playedCard);
+        }
     }
 }
 
@@ -111,7 +149,9 @@ void GameManager::discardCard(
     cardData["suit"] = discardedCard->getSuit();
     cardData["point"] = discardedCard->getPoint();
     cardData["type"] = discardedCard->getType();
-
+    m_playerHand.removeAt(handIndex);
+    if (m_dangqianplayer->getmynum() == 1)
+        m_dangqianplayer->removeCard(discardedCard);
     emit cardRemoved(handIndex);
     emit cardDiscarded(cardData);
 }
@@ -180,55 +220,94 @@ player *GameManager::getdangqianplayer()
 void GameManager::selectTargetPlayer(
     int playerIndex)
 {
-    if (!m_isSelectingTarget || m_selectedCardIndex < 0) {
-        qWarning() << "不在目标选择模式";
-        return;
-    }
+    // if (!m_isSelectingTarget || m_selectedCardIndex < 0) {
+    //     qWarning() << "不在目标选择模式";
+    //     return;
+    // }
 
-    // 修复1：添加索引范围检查
-    if (playerIndex < 0 || playerIndex >= m_player.size()) {
-        qWarning() << "无效玩家索引:" << playerIndex;
-        return;
-    }
+    // // 修复1：添加索引范围检查
+    // if (playerIndex < 0 || playerIndex >= m_player.size()) {
+    //     qWarning() << "无效玩家索引:" << playerIndex;
+    //     return;
+    // }
 
-    // 修复2：安全获取玩家指针
+    // // 修复2：安全获取玩家指针
+    // auto it = m_player.begin();
+    // std::advance(it, playerIndex);
+
+    // if (it == m_player.end()) { // 新增边界检查
+    //     qWarning() << "玩家迭代器越界";
+    //     return;
+    // }
+
+    // player *t = *it;
+    // if (!t) { // 新增空指针检查
+    //     qWarning() << "目标玩家为空";
+    //     return;
+    // }
+
+    // // 修复3：统一使用当前玩家指针
+    // player *p = getdangqianplayer();
+    // if (!p) {
+    //     qWarning() << "当前玩家为空";
+    //     return;
+    // }
+
+    // card *playedCard = m_playerHand.at(m_selectedCardIndex);
+    // if (!playedCard) {
+    //     qWarning() << "选择的卡牌为空";
+    //     return;
+    // }
+
+    // // 修复4：移除冗余代码（响应处理已独立）
+    // bool success = playedCard->xiaoguo(p, t, this);
+    // if (success) {
+    //     m_playerHand.removeAt(m_selectedCardIndex);
+    //     emit cardRemoved(m_selectedCardIndex);
+
+    //     if (playedCard->getTypeString() != "Zhuang_Bei"
+    //         && playedCard->NewGetNameString() != "Shan_Dian"
+    //         && playedCard->NewGetNameString() != "Le_Busishu"
+    //         && playedCard->NewGetNameString() != "Bing_Niangchunduan") {
+    //         moveCardToDiscard(playedCard);
+    //     }
+    // }
+
+    // // 重置状态
+    // m_isSelectingTarget = false;
+    // m_selectedCardIndex = -1;
+    // emit isSelectingTargetChanged(false);
+    // emit cardPlayedWithTarget(m_selectedCardIndex, playerIndex);
+    if (!m_isSelectingTarget || m_selectedCardIndex < 0)
+        return;
+    if (playerIndex < 0 || playerIndex >= m_player.size())
+        return;
+
     auto it = m_player.begin();
     std::advance(it, playerIndex);
-
-    if (it == m_player.end()) { // 新增边界检查
-        qWarning() << "玩家迭代器越界";
-        return;
-    }
-
-    player *t = *it;
-    if (!t) { // 新增空指针检查
-        qWarning() << "目标玩家为空";
-        return;
-    }
-
-    // 修复3：统一使用当前玩家指针
-    player *p = getdangqianplayer();
-    if (!p) {
-        qWarning() << "当前玩家为空";
-        return;
-    }
-
+    player *targetPlayer = *it;
     card *playedCard = m_playerHand.at(m_selectedCardIndex);
-    if (!playedCard) {
-        qWarning() << "选择的卡牌为空";
-        return;
-    }
+    bool success = playedCard->xiaoguo(getdangqianplayer(), targetPlayer, this);
 
-    // 修复4：移除冗余代码（响应处理已独立）
-    bool success = playedCard->xiaoguo(p, t, this);
     if (success) {
+        QVariantMap cardData;
+        cardData["name"] = playedCard->NewGetName();
+        cardData["suit"] = playedCard->getSuit();
+        cardData["point"] = playedCard->getPoint();
+        cardData["type"] = playedCard->getType();
+
+        // 直接从手牌列表移除
         m_playerHand.removeAt(m_selectedCardIndex);
         emit cardRemoved(m_selectedCardIndex);
+        emit cardPlayed(cardData);
 
-        if (playedCard->getTypeString() != "Zhuang_Bei"
-            && playedCard->NewGetNameString() != "Shan_Dian"
-            && playedCard->NewGetNameString() != "Le_Busishu"
-            && playedCard->NewGetNameString() != "Bing_Niangchunduan") {
+        // 特殊卡牌不进弃牌堆
+        const bool isSpecialCard = playedCard->getTypeString() == "Zhuang_Bei"
+                                   || playedCard->NewGetNameString() == "Shan_Dian"
+                                   || playedCard->NewGetNameString() == "Le_Busishu"
+                                   || playedCard->NewGetNameString() == "Bing_Niangchunduan";
+
+        if (!isSpecialCard) {
             moveCardToDiscard(playedCard);
         }
     }
@@ -237,7 +316,6 @@ void GameManager::selectTargetPlayer(
     m_isSelectingTarget = false;
     m_selectedCardIndex = -1;
     emit isSelectingTargetChanged(false);
-    emit cardPlayedWithTarget(m_selectedCardIndex, playerIndex);
 }
 
 void GameManager::cancelTargetSelection()
@@ -310,11 +388,18 @@ void GameManager::removecard(
 {
     for (int i = 0; i < m_playerHand.size(); ++i) {
         if (m_playerHand[i] == c) {
+            QVariantMap cardData;
+            cardData["name"] = m_playerHand[i]->NewGetName();
+            cardData["suit"] = m_playerHand[i]->getSuit();
+            cardData["point"] = m_playerHand[i]->getPoint();
+            cardData["type"] = m_playerHand[i]->getType();
+            emit cardRemoved(i);
+            emit cardPlayed(cardData); // 发出卡牌使用信号，但卡牌尚未进入弃牌堆
+            emit cardDiscarded(cardData);
             m_playerHand.removeAt(i);
             return;
         }
     }
-    qWarning() << "要移除的卡牌不在玩家手牌中";
 }
 
 bool GameManager::waitForShanResponse(
@@ -337,8 +422,8 @@ bool GameManager::waitForShanResponse(
     timer.setSingleShot(true);
     connect(this, &GameManager::responseReceived, &loop, &QEventLoop::quit);
     connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    connect(this, &GameManager::cancelResponseCalled, &loop, &QEventLoop::quit); // 添加新连接
     timer.start(15000); // 15秒超时
-
     loop.exec();
 
     // 重置响应状态
@@ -368,8 +453,8 @@ bool GameManager::waitForWuXiekejiResponse(
     timer.setSingleShot(true);
     connect(this, &GameManager::responseReceived, &loop, &QEventLoop::quit);
     connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    connect(this, &GameManager::cancelResponseCalled, &loop, &QEventLoop::quit);
     timer.start(15000); // 15秒超时
-
     loop.exec();
 
     // 重置响应状态
@@ -394,22 +479,23 @@ void GameManager::respondToCard(
         switch (m_currentResponseType) {
         case ShanResponse:
             if (responseCard->getName() == card::Shan) {
-                m_responseResult = true; // 闪响应成功
+                m_responseResult = true;
                 m_responseReceived = true;
 
-                // 将响应牌移动到弃牌堆
-                int i = 0;
-                for (i = 0; i < m_playerHand.size(); ++i) {
-                    if (m_playerHand[i] == responseCard) {
-                        return;
-                    }
+                // 从手牌中移除响应牌
+                int index = m_playerHand.indexOf(responseCard);
+                if (index != -1) {
+                    m_playerHand.removeAt(index);
+                    emit cardRemoved(index);
                 }
-                playCard(i);
+
+                // 移动到弃牌堆
                 moveCardToDiscard(responseCard);
                 responder->removeCard(responseCard);
+
+                // 同步玩家1手牌
                 if (m_dangqianplayer->getmynum() == 1) {
-                    m_playerHand.clear();
-                    m_playerHand.append(m_dangqianplayer->getcards());
+                    m_playerHand = m_dangqianplayer->getcards();
                 }
 
                 emit responseReceived(responseCard, responder);
@@ -418,23 +504,23 @@ void GameManager::respondToCard(
 
         case WuXiekejiResponse:
             if (responseCard->getName() == card::Wu_Xiekeji) {
-                m_responseResult = true; // 无懈可击响应成功
+                m_responseResult = true;
                 m_responseReceived = true;
 
-                // 将响应牌移动到弃牌堆
-                int k = 0;
-                for (k = 0; k < m_playerHand.size(); ++k) {
-                    if (m_playerHand[k] == responseCard) {
-                        return;
-                    }
+                // 从手牌中移除响应牌
+                int index = m_playerHand.indexOf(responseCard);
+                if (index != -1) {
+                    m_playerHand.removeAt(index);
+                    emit cardRemoved(index);
                 }
-                playCard(k);
+
+                // 移动到弃牌堆
                 moveCardToDiscard(responseCard);
                 responder->removeCard(responseCard);
+
+                // 同步玩家1手牌
                 if (m_dangqianplayer->getmynum() == 1) {
-                    removecard(responseCard);
-                    m_playerHand.clear();
-                    m_playerHand.append(m_dangqianplayer->getcards());
+                    m_playerHand = m_dangqianplayer->getcards();
                 }
 
                 // 无效化原始卡牌
@@ -445,13 +531,7 @@ void GameManager::respondToCard(
                 emit responseReceived(responseCard, responder);
             }
             break;
-
-        default:
-            qWarning() << "无效的响应类型";
-            break;
         }
-    } else {
-        qWarning() << "响应已收到，忽略额外响应";
     }
 }
 
@@ -467,4 +547,15 @@ void GameManager::playResponseCard(
     player *responder = getdangqianplayer();
 
     respondToCard(responseCard, responder);
+}
+
+void GameManager::cancelResponse()
+{
+    if (!m_responseReceived) {
+        qDebug() << "取消响应";
+        m_responseResult = false;
+        m_responseReceived = true;
+        emit responseReceived(nullptr, nullptr);
+        emit cancelResponseCalled(); // 触发取消信号
+    }
 }

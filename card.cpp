@@ -75,8 +75,10 @@ bool card::xiaoguo(
         if (!ischushan) {
             if (laiyuan->isbaohan("Jiu"))
                 return mubiao->shoudaoshanghai(2, "Pu_Tong");
-            else
+            else {
+                qDebug() << "杀成功";
                 return mubiao->shoudaoshanghai(1, "Pu_Tong");
+            }
         }
         break;
     }
@@ -122,8 +124,10 @@ bool card::xiaoguo(
 
         if (laiyuan->isbaohan("Jiu"))
             return mubiao->shoudaoshanghai(2, "Lei");
-        else
+        else {
+            qDebug() << "杀成功";
             return mubiao->shoudaoshanghai(1, "Lei");
+        }
         break;
     }
 
@@ -145,15 +149,16 @@ bool card::xiaoguo(
         }
         if (laiyuan->isbaohan("Jiu"))
             return mubiao->shoudaoshanghai(2, "Fire");
-        else
+        else {
+            qDebug() << "杀成功";
             return mubiao->shoudaoshanghai(1, "Fire");
+        }
 
         break;
     }
 
     case Wu_Zhongshengyou: {
         emit xuyaowuxiekeji(this); // 通知需要无懈可击响应
-
         // 等待无懈可击响应
         bool wuxieResponded = g->waitForWuXiekejiResponse(this);
 
@@ -161,6 +166,7 @@ bool card::xiaoguo(
             qDebug() << "无懈可击生效，锦囊牌无效";
             return true;
         }
+        qDebug() << "无中生有成功";
         mubiao->mopai(2, g);
         return true;
         break;

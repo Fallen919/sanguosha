@@ -6,7 +6,7 @@
 
 // Item {
 //     id: gameArea
-//     anchors.fill: parent  // 关键修改：填充父容器
+//     anchors.fill: parent
 //     signal backToMenu()
 
 //     property ListModel handCardsModel: ListModel {}
@@ -23,8 +23,8 @@
 
 //         Item {
 //             id: equipmentItem
-//             width: 80
-//             height: 30
+//             width: 70  // 缩小装备区大小
+//             height: 25
 //             property string equipmentType: ""
 //             property string source: ""
 
@@ -33,22 +33,22 @@
 //                 anchors.centerIn: parent
 
 //                 Image {
-//                     width: 24
-//                     height: 24
+//                     width: 20  // 缩小图标
+//                     height: 20
 //                     source: equipmentItem.source
 //                 }
 
 //                 Text {
 //                     text: equipmentItem.equipmentType
 //                     color: "white"
-//                     font.pixelSize: 14
+//                     font.pixelSize: 12  // 缩小字体
 //                     verticalAlignment: Text.AlignVCenter
 //                 }
 //             }
 //         }
 //     }
 
-//     // 1. 背景 - 填充整个游戏区域
+//     // 1. 背景
 //     AnimatedImage {
 //         anchors.fill: parent
 //         source: "/root/Sanguosha/beijing.gif"
@@ -56,16 +56,16 @@
 //         fillMode: Image.PreserveAspectCrop
 //     }
 
-//     // 2. 牌堆区域 - 移动到左上角
+//     // 2. 牌堆区域 - 左上角
 //     Item {
 //         id: deckArea
-//         width: parent.width * 0.12
-//         height: parent.height * 0.18
+//         width: parent.width * 0.1  // 缩小牌堆区域
+//         height: parent.height * 0.15
 //         anchors {
 //             top: parent.top
 //             left: parent.left
-//             topMargin: parent.height * 0.05
-//             leftMargin: parent.width * 0.05
+//             topMargin: parent.height * 0.03
+//             leftMargin: parent.width * 0.03
 //         }
 
 //         // 牌堆
@@ -98,7 +98,7 @@
 //         }
 //     }
 
-//     // 3. 手牌区域 - 确保填充底部
+//     // 3. 手牌区域 - 缩小卡片大小
 //     Item {
 //         id: handArea
 //         anchors {
@@ -107,7 +107,7 @@
 //             right: parent.right
 //             bottomMargin: parent.height * 0.03
 //         }
-//         height: parent.height * 0.28
+//         height: parent.height * 0.25  // 缩小手牌区域高度
 
 //         Flow {
 //             id: handCardsFlow
@@ -120,8 +120,8 @@
 //                 model: handCardsModel
 
 //                 delegate: CardItem {
-//                     width: handArea.width * 0.1
-//                     height: handArea.height * 0.9
+//                     width: handArea.width * 0.08  // 缩小卡片宽度
+//                     height: handArea.height * 0.8  // 缩小卡片高度
 //                     cardName: model.name
 //                     cardSuit: model.suit
 //                     point: model.point
@@ -160,20 +160,20 @@
 //         }
 //     }
 
-//     // 4. 玩家区域 - 确保填充整个空间
+//     // 4. 玩家区域 - 缩小玩家大小
 //     Item {
 //         id: playersContainer
 //         anchors.fill: parent
 
-//         // 玩家2 (顶部中央)
+//         // 玩家2 (顶部中央) - 缩小大小
 //         PlayerArea {
 //             id: player2Area
-//             width: parent.width * 0.25
-//             height: parent.height * 0.25
+//             width: parent.width * 0.2  // 缩小玩家宽度
+//             height: parent.height * 0.2  // 缩小玩家高度
 //             anchors {
 //                 top: parent.top
 //                 horizontalCenter: parent.horizontalCenter
-//                 topMargin: parent.height * 0.15
+//                 topMargin: parent.height * 0.1  // 调整顶部间距
 //             }
 //             playerName: "Player 2"
 //             health: 4
@@ -187,16 +187,16 @@
 //             }
 //         }
 
-//         // 玩家1 (右下角)
+//         // 玩家1 (右下角) - 缩小大小
 //         PlayerArea {
 //             id: player1Area
-//             width: parent.width * 0.25
-//             height: parent.height * 0.25
+//             width: parent.width * 0.2  // 缩小玩家宽度
+//             height: parent.height * 0.2  // 缩小玩家高度
 //             anchors {
 //                 bottom: handArea.top
 //                 right: parent.right
-//                 bottomMargin: parent.height * 0.05
-//                 rightMargin: parent.width * 0.05
+//                 bottomMargin: parent.height * 0.03  // 调整底部间距
+//                 rightMargin: parent.width * 0.03  // 调整右边间距
 //             }
 //             playerName: "Player 1 (You)"
 //             health: 4
@@ -215,7 +215,7 @@
 //                 anchors {
 //                     top: parent.bottom
 //                     horizontalCenter: parent.horizontalCenter
-//                     topMargin: parent.height * 0.05
+//                     topMargin: parent.height * 0.03  // 调整顶部间距
 //                 }
 //                 spacing: 5
 
@@ -223,13 +223,13 @@
 //                     text: "装备区"
 //                     color: "white"
 //                     font.bold: true
-//                     font.pixelSize: 16
+//                     font.pixelSize: 14  // 缩小字体
 //                     anchors.horizontalCenter: parent.horizontalCenter
 //                 }
 
 //                 Grid {
 //                     columns: 2
-//                     spacing: 10
+//                     spacing: 8  // 减小间距
 
 //                     // 武器
 //                     Loader {
@@ -263,7 +263,7 @@
 //         }
 //     }
 
-//     // 5. 功能按钮 - 调整位置确保在屏幕上
+//     // 5. 功能按钮 - 调整大小
 //     Row {
 //         anchors {
 //             bottom: handArea.top
@@ -273,9 +273,10 @@
 //         spacing: parent.width * 0.02
 
 //         Button {
-//             width: parent.width * 0.1
-//             height: parent.height * 0.05
+//             width: parent.width * 0.08  // 缩小按钮
+//             height: parent.height * 0.04
 //             text: "洗牌"
+//             font.pixelSize: 12  // 缩小字体
 //             onClicked: {
 //                 if (gameManager) {
 //                     gameManager.shuffleDeck();
@@ -284,9 +285,10 @@
 //         }
 
 //         Button {
-//             width: parent.width * 0.1
-//             height: parent.height * 0.05
+//             width: parent.width * 0.08
+//             height: parent.height * 0.04
 //             text: "结束回合"
+//             font.pixelSize: 12
 //             onClicked: {
 //                 if (gameManager) {
 //                     gameManager.endTurn();
@@ -295,19 +297,20 @@
 //         }
 
 //         Button {
-//             width: parent.width * 0.1
-//             height: parent.height * 0.05
+//             width: parent.width * 0.08
+//             height: parent.height * 0.04
 //             text: "退出"
+//             font.pixelSize: 12
 //             onClicked: Qt.quit()
 //         }
 //     }
 
-//     // 响应提示框 - 确保居中
+//     // 响应提示框 - 调整大小
 //     Rectangle {
 //         id: responsePanel
 //         anchors.centerIn: parent
-//         width: parent.width * 0.3
-//         height: parent.height * 0.2
+//         width: parent.width * 0.25  // 缩小宽度
+//         height: parent.height * 0.18  // 缩小高度
 //         color: "#AA000000"
 //         border.color: "gold"
 //         border.width: 3
@@ -318,7 +321,7 @@
 //             id: responseText
 //             anchors.top: parent.top
 //             anchors.horizontalCenter: parent.horizontalCenter
-//             anchors.topMargin: parent.height * 0.03
+//             anchors.topMargin: parent.height * 0.02  // 调整边距
 //             text: {
 //                 if (isShanRequired) {
 //                     return "请响应【杀】，打出一张【闪】"
@@ -328,7 +331,7 @@
 //                 return ""
 //             }
 //             color: "white"
-//             font.pixelSize: parent.height * 0.04
+//             font.pixelSize: parent.height * 0.035  // 缩小字体
 //             font.bold: true
 //         }
 
@@ -340,6 +343,7 @@
 //                 width: responsePanel.width * 0.3
 //                 height: responsePanel.height * 0.2
 //                 text: "确定响应"
+//                 font.pixelSize: 12  // 缩小字体
 //                 visible: (isShanRequired && currentPlayer.hasShan) ||
 //                          (isWuXiekejiRequired && currentPlayer.hasWuXiekeji)
 //                 onClicked: {
@@ -352,6 +356,7 @@
 //                 width: responsePanel.width * 0.3
 //                 height: responsePanel.height * 0.2
 //                 text: "取消响应"
+//                 font.pixelSize: 12  // 缩小字体
 //                 onClicked: {
 //                     gameManager.cancelResponse();
 //                     isShanRequired = false;
@@ -364,10 +369,10 @@
 //         Text {
 //             anchors.bottom: parent.bottom
 //             anchors.horizontalCenter: parent.horizontalCenter
-//             anchors.bottomMargin: parent.height * 0.02
+//             anchors.bottomMargin: parent.height * 0.015  // 调整边距
 //             text: "剩余时间: " + Math.ceil(responseTimer.remainingTime / 1000) + "秒"
 //             color: "white"
-//             font.pixelSize: parent.height * 0.03
+//             font.pixelSize: parent.height * 0.025  // 缩小字体
 //         }
 //     }
 
@@ -418,7 +423,7 @@
 //         }
 
 //         function onCardRemoved(index) {
-//             if (index >= 0 && index < handCardsModel.count) {
+//             if (index >= 0 || index < handCardsModel.count) {
 //                 handCardsModel.remove(index);
 
 //                 if (gameArea.selectedCardIndex === index) {
@@ -528,7 +533,7 @@
 //         }
 //     }
 
-//     // 取消按钮 - 调整位置
+//     // 取消按钮 - 调整大小
 //     Button {
 //         id: cancelButton
 //         anchors {
@@ -536,9 +541,10 @@
 //             right: parent.right
 //             margins: parent.width * 0.015
 //         }
-//         width: parent.width * 0.08
-//         height: parent.height * 0.05
+//         width: parent.width * 0.07  // 缩小按钮
+//         height: parent.height * 0.04
 //         text: "取消选择"
+//         font.pixelSize: 12  // 缩小字体
 //         visible: false
 
 //         background: Rectangle {
@@ -627,7 +633,7 @@ Item {
 
         Item {
             id: equipmentItem
-            width: 70  // 缩小装备区大小
+            width: 70
             height: 25
             property string equipmentType: ""
             property string source: ""
@@ -637,7 +643,7 @@ Item {
                 anchors.centerIn: parent
 
                 Image {
-                    width: 20  // 缩小图标
+                    width: 20
                     height: 20
                     source: equipmentItem.source
                 }
@@ -645,7 +651,7 @@ Item {
                 Text {
                     text: equipmentItem.equipmentType
                     color: "white"
-                    font.pixelSize: 12  // 缩小字体
+                    font.pixelSize: 12
                     verticalAlignment: Text.AlignVCenter
                 }
             }
@@ -663,7 +669,7 @@ Item {
     // 2. 牌堆区域 - 左上角
     Item {
         id: deckArea
-        width: parent.width * 0.1  // 缩小牌堆区域
+        width: parent.width * 0.1
         height: parent.height * 0.15
         anchors {
             top: parent.top
@@ -702,7 +708,7 @@ Item {
         }
     }
 
-    // 3. 手牌区域 - 缩小卡片大小
+    // 3. 手牌区域
     Item {
         id: handArea
         anchors {
@@ -711,7 +717,7 @@ Item {
             right: parent.right
             bottomMargin: parent.height * 0.03
         }
-        height: parent.height * 0.25  // 缩小手牌区域高度
+        height: parent.height * 0.25
 
         Flow {
             id: handCardsFlow
@@ -724,8 +730,8 @@ Item {
                 model: handCardsModel
 
                 delegate: CardItem {
-                    width: handArea.width * 0.08  // 缩小卡片宽度
-                    height: handArea.height * 0.8  // 缩小卡片高度
+                    width: handArea.width * 0.08
+                    height: handArea.height * 0.8
                     cardName: model.name
                     cardSuit: model.suit
                     point: model.point
@@ -764,20 +770,20 @@ Item {
         }
     }
 
-    // 4. 玩家区域 - 缩小玩家大小
+    // 4. 玩家区域
     Item {
         id: playersContainer
         anchors.fill: parent
 
-        // 玩家2 (顶部中央) - 缩小大小
+        // 玩家2 (顶部中央)
         PlayerArea {
             id: player2Area
-            width: parent.width * 0.2  // 缩小玩家宽度
-            height: parent.height * 0.2  // 缩小玩家高度
+            width: parent.width * 0.2
+            height: parent.height * 0.2
             anchors {
                 top: parent.top
                 horizontalCenter: parent.horizontalCenter
-                topMargin: parent.height * 0.1  // 调整顶部间距
+                topMargin: parent.height * 0.1
             }
             playerName: "Player 2"
             health: 4
@@ -791,16 +797,16 @@ Item {
             }
         }
 
-        // 玩家1 (右下角) - 缩小大小
+        // 玩家1 (右下角)
         PlayerArea {
             id: player1Area
-            width: parent.width * 0.2  // 缩小玩家宽度
-            height: parent.height * 0.2  // 缩小玩家高度
+            width: parent.width * 0.2
+            height: parent.height * 0.2
             anchors {
                 bottom: handArea.top
                 right: parent.right
-                bottomMargin: parent.height * 0.03  // 调整底部间距
-                rightMargin: parent.width * 0.03  // 调整右边间距
+                bottomMargin: parent.height * 0.03
+                rightMargin: parent.width * 0.03
             }
             playerName: "Player 1 (You)"
             health: 4
@@ -813,13 +819,13 @@ Item {
                 resetTargetSelection();
             }
 
-            // 装备区 - 添加到玩家1区域
+            // 装备区
             Column {
                 id: equipmentArea
                 anchors {
                     top: parent.bottom
                     horizontalCenter: parent.horizontalCenter
-                    topMargin: parent.height * 0.03  // 调整顶部间距
+                    topMargin: parent.height * 0.03
                 }
                 spacing: 5
 
@@ -827,13 +833,13 @@ Item {
                     text: "装备区"
                     color: "white"
                     font.bold: true
-                    font.pixelSize: 14  // 缩小字体
+                    font.pixelSize: 14
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
                 Grid {
                     columns: 2
-                    spacing: 8  // 减小间距
+                    spacing: 8
 
                     // 武器
                     Loader {
@@ -867,7 +873,7 @@ Item {
         }
     }
 
-    // 5. 功能按钮 - 调整大小
+    // 5. 功能按钮
     Row {
         anchors {
             bottom: handArea.top
@@ -877,10 +883,10 @@ Item {
         spacing: parent.width * 0.02
 
         Button {
-            width: parent.width * 0.08  // 缩小按钮
+            width: parent.width * 0.08
             height: parent.height * 0.04
             text: "洗牌"
-            font.pixelSize: 12  // 缩小字体
+            font.pixelSize: 12
             onClicked: {
                 if (gameManager) {
                     gameManager.shuffleDeck();
@@ -909,12 +915,12 @@ Item {
         }
     }
 
-    // 响应提示框 - 调整大小
+    // 响应提示框
     Rectangle {
         id: responsePanel
         anchors.centerIn: parent
-        width: parent.width * 0.25  // 缩小宽度
-        height: parent.height * 0.18  // 缩小高度
+        width: parent.width * 0.25
+        height: parent.height * 0.18
         color: "#AA000000"
         border.color: "gold"
         border.width: 3
@@ -925,7 +931,7 @@ Item {
             id: responseText
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: parent.height * 0.02  // 调整边距
+            anchors.topMargin: parent.height * 0.02
             text: {
                 if (isShanRequired) {
                     return "请响应【杀】，打出一张【闪】"
@@ -935,7 +941,7 @@ Item {
                 return ""
             }
             color: "white"
-            font.pixelSize: parent.height * 0.035  // 缩小字体
+            font.pixelSize: parent.height * 0.035
             font.bold: true
         }
 
@@ -947,7 +953,7 @@ Item {
                 width: responsePanel.width * 0.3
                 height: responsePanel.height * 0.2
                 text: "确定响应"
-                font.pixelSize: 12  // 缩小字体
+                font.pixelSize: 12
                 visible: (isShanRequired && currentPlayer.hasShan) ||
                          (isWuXiekejiRequired && currentPlayer.hasWuXiekeji)
                 onClicked: {
@@ -960,9 +966,11 @@ Item {
                 width: responsePanel.width * 0.3
                 height: responsePanel.height * 0.2
                 text: "取消响应"
-                font.pixelSize: 12  // 缩小字体
+                font.pixelSize: 12
                 onClicked: {
-                    gameManager.cancelResponse();
+                    if (gameManager) {
+                        gameManager.cancelResponse();
+                    }
                     isShanRequired = false;
                     isWuXiekejiRequired = false;
                     resetResponseCards();
@@ -973,10 +981,10 @@ Item {
         Text {
             anchors.bottom: parent.bottom
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottomMargin: parent.height * 0.015  // 调整边距
+            anchors.bottomMargin: parent.height * 0.015
             text: "剩余时间: " + Math.ceil(responseTimer.remainingTime / 1000) + "秒"
             color: "white"
-            font.pixelSize: parent.height * 0.025  // 缩小字体
+            font.pixelSize: parent.height * 0.025
         }
     }
 
@@ -991,7 +999,9 @@ Item {
             remainingTime -= 1000;
             if (remainingTime <= 0) {
                 stop();
-                gameManager.cancelResponse();
+                if (gameManager) {
+                    gameManager.cancelResponse();
+                }
                 isShanRequired = false;
                 isWuXiekejiRequired = false;
                 resetResponseCards();
@@ -1135,9 +1145,16 @@ Item {
             isWuXiekejiRequired = false;
             resetResponseCards();
         }
+
+        // 新增：处理取消响应信号
+        function onCancelResponseCalled() {
+            isShanRequired = false;
+            isWuXiekejiRequired = false;
+            resetResponseCards();
+        }
     }
 
-    // 取消按钮 - 调整大小
+    // 取消按钮
     Button {
         id: cancelButton
         anchors {
@@ -1145,10 +1162,10 @@ Item {
             right: parent.right
             margins: parent.width * 0.015
         }
-        width: parent.width * 0.07  // 缩小按钮
+        width: parent.width * 0.07
         height: parent.height * 0.04
         text: "取消选择"
-        font.pixelSize: 12  // 缩小字体
+        font.pixelSize: 12
         visible: false
 
         background: Rectangle {

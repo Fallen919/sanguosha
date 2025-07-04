@@ -89,11 +89,14 @@ signals:
     void requireWuXiekejiResponse(card *sourceCard);              // 需要无懈可击响应
     void responseReceived(card *responseCard, player *responder); // 响应卡牌打出
     void wuXiekejiResponseFinished();
+    void cancelResponseCalled(); // 添加新信号
+
+public slots:
+    void cancelResponse(); // 添加取消响应函数
 
 private:
     Carddex m_carddex;
     QList<card *> m_playerHand;
-    // QList<card> m_prevHand;
     std::list<player *> m_player;
     player *m_dangqianplayer;
     int m_selectedCardIndex = -1;     // 当前选中的卡牌索引

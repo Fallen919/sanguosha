@@ -230,20 +230,30 @@ void player::yichuzhuangtai(
 bool player::playcard(
     int handIndex, GameManager *g)
 {
-    if (handIndex < 0 || handIndex >= m_cards.size()) {
-        qWarning() << "Invalid hand index:" << handIndex;
-        qWarning() << "shoupai:" << m_cards.size();
+    // if (handIndex < 0 || handIndex >= m_cards.size()) {
+    //     qWarning() << "Invalid hand index:" << handIndex;
+    //     qWarning() << "shoupai:" << m_cards.size();
+    //     return false;
+    // }
+    // card *cd = m_cards[handIndex];
+    // if (cd->xiaoguo(this, this, g)) {
+    //     if (cd->getTypeString() != "Zhuang_Bei" && cd->NewGetNameString() != "Shan_Dian"
+    //         && cd->NewGetNameString() != "Le_Busishu"
+    //         && cd->NewGetNameString() != "Bing_Niangchunduan")
+    //         g->moveCardToDiscard(cd);
+    //     if (g->getdangqianplayer()->getmynum() == 1) {
+    //         g->removecard(m_cards[handIndex]);
+    //     }
+    //         m_cards.removeAt(handIndex);
+    //     return true;
+    // }
+    // return false;
+    if (handIndex < 0 || handIndex >= m_cards.size())
         return false;
-    }
-    if (m_cards[handIndex]->xiaoguo(this, this, g)) {
-        if (m_cards[handIndex]->getTypeString() != "Zhuang_Bei"
-            && m_cards[handIndex]->NewGetNameString() != "Shan_Dian"
-            && m_cards[handIndex]->NewGetNameString() != "Le_Busishu"
-            && m_cards[handIndex]->NewGetNameString() != "Bing_Niangchunduan")
-            g->moveCardToDiscard(m_cards[handIndex]);
-        if (g->getdangqianplayer()->getmynum() == 1) {
-            g->removecard(m_cards[handIndex]);
-        }
+
+    card *cd = m_cards[handIndex];
+    if (cd->xiaoguo(this, this, g)) {
+        // 只从玩家手牌中移除，不处理弃牌逻辑
         m_cards.removeAt(handIndex);
         return true;
     }
