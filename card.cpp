@@ -294,6 +294,7 @@ bool card::xiaoguo(
         mubiao->addwuqi(this);
         mubiao->addzhuangtai("Zhu_Geliannv", 1);
         mubiao->addzhuangtai("Wu_Xian_Sha", 1);
+        mubiao->yichuzhuangtai("Sha");
         return true;
 
         break;

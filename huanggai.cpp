@@ -13,10 +13,11 @@ huanggai::huanggai()
 }
 
 void huanggai::jineng1(
-    QObject* playerObj, QObject* gameManagerObj)
+    QObject *playerObj, QObject *gameManagerObj)
 {
-    player* p = qobject_cast<player*>(playerObj);
-    GameManager* g = qobject_cast<GameManager*>(gameManagerObj);
+    // QObject *playerObj, QObject *gameManagerObj;
+    player *p = qobject_cast<player *>(playerObj);
+    GameManager *g = qobject_cast<GameManager *>(gameManagerObj);
     if (!p || !g) {
         qWarning() << "无效的玩家或游戏";
         return;

@@ -16,7 +16,9 @@ GameManager::GameManager(
     GameManager::setplayers(p2);
     daweiwuwang *d = new daweiwuwang();
     huanggai *h = new huanggai;
-    p->setwujiang(h);
+    p->setwujiang(d);
+    QString wujiangName = QString::fromStdString(p->getwujiang()->getwujiangming());
+    qDebug() << "玩家1武将名称:" << wujiangName;
     p->addzhuangtai("Chu_Pai_Jie_Duan", 1);
     p->settili(4);
     p->settilishangxian(4);
@@ -90,15 +92,15 @@ void GameManager::playCard(
         cardData["type"] = playedCard->getType();
 
         // 直接从手牌列表移除
-        m_playerHand.removeAt(handIndex);
         emit cardRemoved(handIndex);
         emit cardPlayed(cardData);
+        m_playerHand.removeAt(handIndex);
 
         // 特殊卡牌不进弃牌堆
-        const bool isSpecialCard = playedCard->getTypeString() == "Zhuang_Bei"
-                                   || playedCard->NewGetNameString() == "Shan_Dian"
-                                   || playedCard->NewGetNameString() == "Le_Busishu"
-                                   || playedCard->NewGetNameString() == "Bing_Niangchunduan";
+        const bool isSpecialCard = (playedCard->getTypeString() == "Zhuang_Bei"
+                                    || playedCard->NewGetNameString() == "Shan_Dian"
+                                    || playedCard->NewGetNameString() == "Le_Busishu"
+                                    || playedCard->NewGetNameString() == "Bing_Niangchunduan");
 
         if (!isSpecialCard) {
             moveCardToDiscard(playedCard);
@@ -224,6 +226,9 @@ void GameManager::selectTargetPlayer(
 
         // 直接从手牌列表移除
         m_playerHand.removeAt(m_selectedCardIndex);
+        if (m_dangqianplayer->getmynum() == 1) {
+            m_dangqianplayer->removeCard(playedCard);
+        }
         emit cardRemoved(m_selectedCardIndex);
         emit cardPlayed(cardData);
 
@@ -480,6 +485,17 @@ void GameManager::fuzhicards(
 {
     m_playerHand.clear();
     m_playerHand.append(cds);
+}
+
+player *GameManager::getPlayerByNum(
+    int num)
+{
+    for (auto p : m_player) {
+        if (p->getmynum() == num) {
+            return p;
+        }
+    }
+    return nullptr;
 }
 
 void GameManager::cancelResponse()

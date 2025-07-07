@@ -277,13 +277,27 @@ void player::yichuzhuangtai(
 bool player::playcard(
     int handIndex, GameManager *g)
 {
+    // if (handIndex < 0 || handIndex >= m_cards.size())
+    //     return false;
+
+    // card *cd = m_cards[handIndex];
+    // if (cd->xiaoguo(this, this, g)) {
+    //     // 只从玩家手牌中移除，不处理弃牌逻辑
+    //     m_cards.removeAt(handIndex);
+    //     return true;
+    // }
+    // return false;
     if (handIndex < 0 || handIndex >= m_cards.size())
         return false;
 
     card *cd = m_cards[handIndex];
     if (cd->xiaoguo(this, this, g)) {
-        // 只从玩家手牌中移除，不处理弃牌逻辑
+        // 确保卡牌从玩家手牌中移除
         m_cards.removeAt(handIndex);
+        // 通知GameManager同步手牌状态
+        if (g && g->getdangqianplayer() == this) {
+            //g->removeCard(cd);
+        }
         return true;
     }
     return false;

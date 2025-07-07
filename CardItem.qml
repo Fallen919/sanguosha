@@ -51,14 +51,12 @@ Item {
         if (gameManager) {
             gameManager.playCard(cardIndex);
         }
-        gameArea.selectedCardIndex = -1;
     }
 
     onDiscardCard: {
         if (gameManager) {
             gameManager.discardCard(cardIndex);
         }
-        gameArea.selectedCardIndex = -1;
     }
 
     onCancelTargetSelection: {
@@ -90,6 +88,20 @@ Item {
             to: "response"
             NumberAnimation { property: "scale"; duration: 200; to: 1.1 }
             NumberAnimation { property: "z"; duration: 200; to: 20 }
+        },
+        // 新增：从选中状态返回普通状态的过渡
+        Transition {
+            from: "selected"; to: "inHand"
+            ParallelAnimation {
+                NumberAnimation { property: "y"; duration: 200; to: 0 }
+                NumberAnimation { property: "z"; duration: 200; to: 1 }
+            }
+            onRunningChanged: {
+                if (!running) {
+                    // 动画完成后重置状态
+                    root.state = "inHand";
+                }
+            }
         }
     ]
 
@@ -247,10 +259,12 @@ Item {
                 return requiresTarget ? "请选择目标" : "已选中";
             } else if (isResponseCard) {
                 return "可响应";
+            } else if (isSelectableForZhiheng) {
+                return isSelectedForZhiheng ? "已选为制衡" : "可选为制衡";
             }
             return ""
         }
-        color: requiresTarget ? "#4CAF50" : (isResponseCard ? "green" : "yellow")
+        color: requiresTarget ? "#4CAF50" : (isResponseCard ? "green" : (isSelectableForZhiheng ? "cyan" : "yellow"))
         font.bold: true
         font.pixelSize: 16
         style: Text.Outline

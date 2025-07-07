@@ -76,6 +76,7 @@ public:
     Q_INVOKABLE void playResponseCard(int cardIndex);
     Q_INVOKABLE void fuzhicards(QList<card *> cds);
 
+    Q_INVOKABLE player *getPlayerByNum(int num);
 signals:
     // 游戏状态
     void deckCountChanged(int count);   // 牌堆数量变化
