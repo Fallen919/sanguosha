@@ -67,16 +67,22 @@ void wujiang::setwujiangming(
     m_wujiangming = wjm;
 }
 
-std::string wujiang::getwujiangming()
-{
-    return m_wujiangming;
-}
-
 void wujiang::jineng1() {}
 
 void wujiang::jineng2() {}
 
 void wujiang::jineng3() {}
+
+void wujiang::executeZhiheng(
+    QList<card *> cardsToDiscard, QObject *gObj)
+{
+    qWarning() << "制衡";
+}
+
+wujiang::~wujiang()
+{
+    int i = 0;
+}
 
 wujiang::Xingbie wujiang::getxingbie()
 {

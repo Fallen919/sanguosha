@@ -3,6 +3,7 @@
 player::player(
     QObject *parent)
     : QObject{parent}
+    , m_wujiang{nullptr}
 {
     setgongjijuli();
 }
@@ -32,20 +33,57 @@ int player::getmynum()
 void player::setjuli(
     GameManager *g)
 {
-    m_juli.push_back(0);
-    int num = m_mynum;
-    for (int i = 1; i <= m_wanjiashu; ++i) {
-        if (i == m_mynum)
-            continue;
-        std::list<player *>::iterator it = g->getplayers().begin();
-        while ((*it)->getmynum() != i)
-            ++it;
-        int jl = 0;
-        jl = std::min(abs(i - m_mynum), abs(m_wanjiashu - (i - m_mynum)));
-        if (!(m_zhuangbei.getjinggongma().isEmpty()))
-            m_juli.push_back(jl - 1);
-        if (!((*it)->m_zhuangbei.getfangyuma().isEmpty()))
-            m_juli.push_back(jl + 1);
+    // m_juli.push_back(0);
+    // int num = m_mynum;
+    // for (int i = 1; i <= m_wanjiashu; ++i) {
+    //     if (i == m_mynum)
+    //         continue;
+    //     std::list<player *>::iterator it = g->getplayers().begin();
+    //     while ((*it)->getmynum() != i)
+    //         ++it;
+    //     int jl = 0;
+    //     jl = std::min(abs(i - m_mynum), abs(m_wanjiashu - (i - m_mynum)));
+    //     if (!(m_zhuangbei.getjinggongma().isEmpty()))
+    //         m_juli.push_back(jl - 1);
+    //     if (!((*it)->m_zhuangbei.getfangyuma().isEmpty()))
+    //         m_juli.push_back(jl + 1);
+    // }
+    m_juli.clear();      // 清空原有距离数据
+    m_juli.push_back(0); // [0] 表示自己到自己的距离
+
+    // 遍历所有其他玩家（1到总玩家数）
+    for (int targetNum = 1; targetNum <= m_wanjiashu; ++targetNum) {
+        if (targetNum == m_mynum)
+            continue; // 跳过自己
+
+        // 找到目标玩家对象
+        player *targetPlayer = nullptr;
+        for (auto p : g->getplayers()) {
+            if (p->getmynum() == targetNum) {
+                targetPlayer = p;
+                break;
+            }
+        }
+        if (!targetPlayer)
+            continue; // 安全保护
+
+        // 计算基础环形距离
+        int directDist = abs(targetNum - m_mynum);
+        int ringDist = std::min(directDist, m_wanjiashu - directDist);
+        int finalDist = ringDist;
+
+        // 进攻马效果（减少距离）
+        if (!m_zhuangbei.getjinggongma().isEmpty()) {
+            finalDist = (finalDist > 1) ? finalDist - 1 : 1;
+        }
+
+        // 防御马效果（增加距离）
+        if (!targetPlayer->getzhuangbei()->getfangyuma().isEmpty()) {
+            finalDist += 1;
+        }
+
+        // 存储计算后的距离
+        m_juli.push_back(finalDist);
     }
 }
 
@@ -124,18 +162,24 @@ QList<card *> player::getcards()
 void player::setwujiang(
     wujiang *w)
 {
-    m_wujiang.settili(w->gettili());
-    m_wujiang.settilishangxian(w->gettilishangxian());
-    m_wujiang.setshoupaishu(w->getshoupaishu());
-    m_wujiang.setshoupaishangxian(w->getshoupaishangxian());
-    m_wujiang.setwujiangming(w->getwujiangming());
-    m_wujiang.setwujiangshili(w->getwujiangshili());
-    m_wujiang.setxingbie(w->getxingbie());
+    if (m_wujiang) {
+        m_wujiang->deleteLater(); // 安全删除现有武将
+    }
+    m_wujiang = w;
+
+    if (w) {
+        w->setParent(this); // 设置父对象，由Qt管理生命周期
+
+        // 更新玩家属性
+        settili(w->gettili());
+        settilishangxian(w->gettilishangxian());
+        setshoupaishangxian(w->getshoupaishangxian());
+    }
 }
 
 wujiang *player::getwujiang()
 {
-    return &m_wujiang;
+    return m_wujiang;
 }
 
 void player::mopai(
@@ -143,6 +187,9 @@ void player::mopai(
 {
     for (int i = 0; i < num; ++i) {
         m_cards.append(g->drawCard());
+        }
+        if (g->getdangqianplayer()->getmynum() == 1) {
+            g->fuzhicards(m_cards);
         }
 }
 
@@ -230,24 +277,6 @@ void player::yichuzhuangtai(
 bool player::playcard(
     int handIndex, GameManager *g)
 {
-    // if (handIndex < 0 || handIndex >= m_cards.size()) {
-    //     qWarning() << "Invalid hand index:" << handIndex;
-    //     qWarning() << "shoupai:" << m_cards.size();
-    //     return false;
-    // }
-    // card *cd = m_cards[handIndex];
-    // if (cd->xiaoguo(this, this, g)) {
-    //     if (cd->getTypeString() != "Zhuang_Bei" && cd->NewGetNameString() != "Shan_Dian"
-    //         && cd->NewGetNameString() != "Le_Busishu"
-    //         && cd->NewGetNameString() != "Bing_Niangchunduan")
-    //         g->moveCardToDiscard(cd);
-    //     if (g->getdangqianplayer()->getmynum() == 1) {
-    //         g->removecard(m_cards[handIndex]);
-    //     }
-    //         m_cards.removeAt(handIndex);
-    //     return true;
-    // }
-    // return false;
     if (handIndex < 0 || handIndex >= m_cards.size())
         return false;
 
@@ -269,7 +298,9 @@ void player::fuzhicards(
     QList<card *> cds)
 {
     clearcards();
+    qWarning() << "负责前有:" << m_cards.size();
     m_cards.append(cds);
+    qWarning() << "负责后有:" << m_cards.size();
 }
 
 int player::getPlayerIndex() const
@@ -307,6 +338,19 @@ void player::removeCard(
         }
     }
     qWarning() << "要移除的卡牌不在玩家手牌中";
+}
+
+QString player::getwujiangming() const
+{
+    if (m_wujiang) {
+        return QString::fromStdString(m_wujiang->getwujiangming());
+    }
+    return "";
+}
+
+player::~player()
+{
+    delete m_wujiang;
 }
 
 void player::settilishangxian(

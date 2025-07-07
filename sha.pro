@@ -7,10 +7,13 @@ SOURCES += \
         daweiwuwang.cpp \
         gamejieduan.cpp \
         gamemanager.cpp \
+        huanggai.cpp \
         judgearea.cpp \
         main.cpp \
         player.cpp \
         wujiang.cpp \
+        wutugu.cpp \
+        zhangfei.cpp \
         zhuangbeiqu.cpp
 
 resources.files = main.qml 
@@ -36,9 +39,12 @@ HEADERS += \
     daweiwuwang.h \
     gamejieduan.h \
     gamemanager.h \
+    huanggai.h \
     judgearea.h \
     player.h \
     wujiang.h \
+    wutugu.h \
+    zhangfei.h \
     zhuangbeiqu.h
 
 DISTFILES += \

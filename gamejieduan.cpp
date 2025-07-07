@@ -53,6 +53,7 @@ void gamejieduan::jieshujieduan(
 {
     p->yichuzhuangtai("Qi_Pai_Jie_Duan");
     p->addzhuangtai("Jie_Shu_Jie_Duan", 1);
+    p->yichuzhuangtai("Sha");
 }
 
 void gamejieduan::huihejieshu(

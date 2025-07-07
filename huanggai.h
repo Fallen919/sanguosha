@@ -1,25 +1,24 @@
 #pragma once
 #include "wujiang.h"
-#include "gamejieduan.h"
-class daweiwuwang : public wujiang
+
+#include <QObject>
+
+class player;
+class GameManager;
+class huanggai : public wujiang
 {
     Q_OBJECT
 public:
-    daweiwuwang();
+    huanggai();
+    Q_INVOKABLE void virtual jineng1(QObject *playerObj, QObject *gameManagerObj);
 
-    Q_INVOKABLE void virtual jineng1(player *p, QObject *g);
+    Q_INVOKABLE void virtual jineng2() override;
 
-    Q_INVOKABLE void virtual jineng2();
-
-    Q_INVOKABLE void virtual jineng3();
-
+    Q_INVOKABLE void virtual jineng3() override;
     Q_INVOKABLE void executeZhiheng(QList<card *> cardsToDiscard, QObject *g) override;
     Q_INVOKABLE std::string getwujiangming() const override { return m_wujiangming; }
+    virtual ~huanggai() override;
 
-signals:
-
-    void zhihengUsed();                       // 制衡技能使用信号
-    void cardsDiscardedForZhiheng(int count); // 制衡弃牌信号
 private:
     std::string m_wujiangming;
     int m_tili;
@@ -28,6 +27,7 @@ private:
     int m_shoupaishangxian;
     wujiang::WujiangShili m_shili;
     wujiang::Xingbie m_xingbie;
-    bool is_usejineng1;
-    int ji_neng_shengyushu;
+
+signals:
+    void kurouUsed(); // 苦肉技能使用信号
 };

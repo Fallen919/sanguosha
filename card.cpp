@@ -57,6 +57,7 @@ bool card::xiaoguo(
 {
     switch (m_name) {
     case Sha: {
+        int num = 1;
         if (!laiyuan || !mubiao || !g)
             return false;
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
@@ -64,22 +65,32 @@ bool card::xiaoguo(
         if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
-        if (mubiao->isbaohan("Teng_Jia"))
+        if (mubiao->isbaohan("Teng_Jia") && !laiyuan->isbaohan("Zhu_Queyushan"))
             return false;
-        emit xuyaoxiangyingshan();
-        bool ischushan = g->waitForShanResponse(mubiao, this);
-        if (ischushan) {
-            qDebug() << "闪响应成功，杀无效";
-            return false;
-        }
-        if (!ischushan) {
-            if (laiyuan->isbaohan("Jiu"))
-                return mubiao->shoudaoshanghai(2, "Pu_Tong");
-            else {
+        if (!laiyuan->isbaohan("Sha")) {
+            if (!laiyuan->isbaohan("Wu_Xian_Sha")) {
+                laiyuan->addzhuangtai("Sha", 1);
+            }
+            emit xuyaoxiangyingshan();
+            bool ischushan = g->waitForShanResponse(mubiao, this);
+            if (ischushan) {
+                qDebug() << "闪响应成功，杀无效";
+                return false;
+            }
+            if (!ischushan) {
+                if (laiyuan->isbaohan("Jia_Shang")) {
+                    num++;
+                    laiyuan->yichuzhuangtai("Jia_Shang");
+                }
+                if (laiyuan->isbaohan("Zhu_Queyushan")) {
+                    return mubiao->shoudaoshanghai(num, "Fire");
+                }
                 qDebug() << "杀成功";
-                return mubiao->shoudaoshanghai(1, "Pu_Tong");
+                return mubiao->shoudaoshanghai(num, "Pu_Tong");
             }
         }
+        if (laiyuan->isbaohan("Sha"))
+            return false;
         break;
     }
 
@@ -99,13 +110,16 @@ bool card::xiaoguo(
     case Jiu: {
         if (mubiao->isbaohan("Jiu"))
             return false;
-        else
+        else {
             mubiao->addzhuangtai("Jiu", 1);
+            mubiao->addzhuangtai("Jia_Shang", 1);
+        }
         return true;
         break;
     }
 
     case Lei_Sha: {
+        int num = 1;
         if (!laiyuan || !mubiao || !g)
             return false;
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
@@ -113,25 +127,33 @@ bool card::xiaoguo(
         if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
-        emit xuyaoxiangyingshan();
+        if (!laiyuan->isbaohan("Sha")) {
+            emit xuyaoxiangyingshan();
 
-        bool sfchushan = g->waitForShanResponse(mubiao, this);
+            bool sfchushan = g->waitForShanResponse(mubiao, this);
 
-        if (sfchushan) {
-            qDebug() << "闪响应成功，杀无效";
-            return false;
-        }
+            if (sfchushan) {
+                qDebug() << "闪响应成功，杀无效";
+                return false;
+            }
 
-        if (laiyuan->isbaohan("Jiu"))
-            return mubiao->shoudaoshanghai(2, "Lei");
-        else {
+            if (laiyuan->isbaohan("Jia_Shang")) {
+                num++;
+                laiyuan->yichuzhuangtai("Jia_Shang");
+            }
             qDebug() << "杀成功";
-            return mubiao->shoudaoshanghai(1, "Lei");
+            return mubiao->shoudaoshanghai(num, "Lei");
+        }
+        if (laiyuan->isbaohan("Sha"))
+            return false;
+        if (!laiyuan->isbaohan("Wu_Xian_Sha")) {
+            laiyuan->addzhuangtai("Sha", 1);
         }
         break;
     }
 
     case Huo_Sha: {
+        int num = 1;
         if (!laiyuan || !mubiao || !g)
             return false;
         if (laiyuan->getgongjijuli() < (laiyuan->getjuli(laiyuan, mubiao)))
@@ -139,21 +161,27 @@ bool card::xiaoguo(
         if (mubiao->isbaohan("Ren_Wangdun") && this->getSuit() == "card::Hei_Tao"
             && this->getSuit() == "Mei_Hua")
             return false;
-        emit xuyaoxiangyingshan();
+        if (!laiyuan->isbaohan("Sha")) {
+            emit xuyaoxiangyingshan();
 
-        bool isschushan = g->waitForShanResponse(mubiao, this);
+            bool isschushan = g->waitForShanResponse(mubiao, this);
 
-        if (isschushan) {
-            qDebug() << "闪响应成功，杀无效";
+            if (isschushan) {
+                qDebug() << "闪响应成功，杀无效";
+                return false;
+            }
+            if (laiyuan->isbaohan("Jia_Shang")) {
+                num++;
+                laiyuan->yichuzhuangtai("Jia_Shang");
+            }
+                qDebug() << "杀成功";
+                return mubiao->shoudaoshanghai(num, "Fire");
+        }
+        if (laiyuan->isbaohan("Sha"))
             return false;
+        if (!laiyuan->isbaohan("Wu_Xian_Sha")) {
+            laiyuan->addzhuangtai("Sha", 1);
         }
-        if (laiyuan->isbaohan("Jiu"))
-            return mubiao->shoudaoshanghai(2, "Fire");
-        else {
-            qDebug() << "杀成功";
-            return mubiao->shoudaoshanghai(1, "Fire");
-        }
-
         break;
     }
 
@@ -265,6 +293,7 @@ bool card::xiaoguo(
         }
         mubiao->addwuqi(this);
         mubiao->addzhuangtai("Zhu_Geliannv", 1);
+        mubiao->addzhuangtai("Wu_Xian_Sha", 1);
         return true;
 
         break;

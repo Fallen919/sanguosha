@@ -98,11 +98,15 @@ public:
     Q_INVOKABLE bool hasWuXiekeji() const;
     Q_INVOKABLE void removeCard(card *cardToRemove);
 
+    Q_INVOKABLE QString getwujiangming() const;
+
+    ~player();
+
 private:
     int m_wanjiashu;         //玩家数
     int m_mynum;             //玩家编号
     QList<card *> m_cards;   //手牌
-    wujiang m_wujiang;       //武将
+    wujiang *m_wujiang = nullptr; // 自动管理生命周期 //武将
     judgearea m_judg;        //判定区
     zhuangbeiqu m_zhuangbei; //装备区
     std::vector<int> m_juli; //与其他玩家的距离
@@ -120,4 +124,5 @@ signals:
     void jinrubinsi();                     //进入濒死阶段时发出信号
     void addzt(const QString zhuangtai);   //添加状态时发出信号
     void yichuzt(const QString zhuangtai); //移除状态时发出信号
+    void playerHealthChanged(int newHealth); //体力变化
 };

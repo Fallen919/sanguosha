@@ -1,6 +1,8 @@
 #pragma once
-
+#include "card.h"
+#include <QList>
 #include <QObject>
+#include <QDebug>
 
 class wujiang : public QObject
 {
@@ -50,14 +52,16 @@ public:
 
     //武将名字
     Q_INVOKABLE void setwujiangming(std::string wjm);
-    Q_INVOKABLE std::string getwujiangming();
-
+    virtual std::string getwujiangming() const = 0;
     //技能
     Q_INVOKABLE void virtual jineng1();
 
     Q_INVOKABLE void virtual jineng2();
 
     Q_INVOKABLE void virtual jineng3();
+    Q_INVOKABLE virtual void executeZhiheng(QList<card *> cardsToDiscard, QObject *g) = 0;
+
+    Q_INVOKABLE virtual ~wujiang();
 
 protected:
     std::string m_wujiangming; //武将名

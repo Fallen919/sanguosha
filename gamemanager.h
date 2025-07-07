@@ -6,6 +6,10 @@
 #include "card.h"
 #include "carddex.h"
 #include <list>
+#include "daweiwuwang.h"
+#include "huanggai.h"
+#include "zhangfei.h"
+#include "wutugu.h"
 
 class GameManager : public QObject
 {
@@ -27,6 +31,7 @@ public:
     Q_INVOKABLE void playCard(int handIndex);
     Q_INVOKABLE void discardCard(int handIndex);
     Q_INVOKABLE void shuffleDeck(); // 洗牌
+    Q_INVOKABLE void removeCard(card *c);
 
     //判定
     Q_INVOKABLE card *panding();
@@ -48,7 +53,7 @@ public:
     Q_INVOKABLE player *getdangqianplayer();
 
     Carddex *getcarddex();
-    QList<card *> gethandcards();
+    Q_INVOKABLE QList<card *> gethandcards();
 
     Q_INVOKABLE void selectTargetPlayer(int playerIndex); // 新增目标选择方法
     Q_INVOKABLE void cancelTargetSelection();             // 取消目标选择
@@ -69,6 +74,7 @@ public:
     Q_INVOKABLE ResponseType currentResponseType() const { return m_currentResponseType; }
 
     Q_INVOKABLE void playResponseCard(int cardIndex);
+    Q_INVOKABLE void fuzhicards(QList<card *> cds);
 
 signals:
     // 游戏状态
